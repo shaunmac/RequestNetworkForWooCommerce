@@ -1,0 +1,104 @@
+/*!
+ *  PaymentFont 1.2.5 by @AMPoellmann - http://paymentfont.com
+ *  License - http://paymentfont.io/#license (Font: SIL OFL 1.1, CSS: MIT License)
+ */
+
+@font-face {
+    font-family: PaymentFont;
+    src: url(../paymentfonts/paymentfont-webfont.eot);
+    src: url(../paymentfonts/paymentfont-webfont.eot?#iefix) format('embedded-opentype'), url(../paymentfonts/paymentfont-webfont.woff) format('woff2'), url(../paymentfonts/paymentfont-webfont.woff) format('woff'), url(../paymentfonts/paymentfont-webfont.ttf) format('truetype'), url(../paymentfonts/paymentfont-webfont.svg#paymentfont-webfont) format('svg');
+    font-weight: 400;
+    font-style: normal
+}
+
+.wooreq-pf {
+    display: inline-block;
+    font: normal normal normal 14px/1 PaymentFont;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 1.2em
+}
+
+.wooreq-pf-right {
+    float: right
+}
+
+.wooreq-pf-left {
+    float: left
+}
+
+.wooreq-pf-lg {
+    font-size: 1.33333333em;
+    line-height: .75em;
+    vertical-align: -15%
+}
+
+.wooreq-pf-2x {
+    font-size: 2em
+}
+
+.wooreq-pf-3x {
+    font-size: 3em
+}
+
+.wooreq-pf-4x {
+    font-size: 4em
+}
+
+.wooreq-pf-5x {
+    font-size: 5em
+}
+
+.wooreq-pf-eth:before {
+    content: "\f06e"
+}
+
+.wooreq-pf-ltc:before {
+    content: "\f06f"
+}
+
+#add_payment_method #payment_method_wooreq {
+    margin: 25px 0 25px 25px;
+}
+
+#add_payment_method #payment_method_wooreq_sepa {
+    margin: 25px 0 25px 25px;
+}
+
+#add_payment_method .woocommerce-PaymentMethod label {
+    margin-left: 10px;
+}
+
+#add_payment_method .woocommerce-PaymentMethod label .wooreq-pf {
+    margin: 25px 0 0 0;
+}
+
+#add_payment_method .woocommerce-PaymentMethod label .wooreq-pf:first-child {
+    margin-right: 25px;
+}
+
+#add_payment_method li {
+    clear: right;
+}
+
+#add_payment_method #wc-wooreq_sepa-form {
+    padding: 10px;
+}
+
+form#order_review #payment_method_wooreq {
+    margin: 25px 0 25px 25px;
+}
+
+
+form#order_review .payment_methods label {
+    margin-left: 10px;
+}
+
+form#order_review .payment_methods label .wooreq-pf:first-child {
+    margin-right: 25px;
+}
+
+form#order_review li {
+    clear: right;
+}
