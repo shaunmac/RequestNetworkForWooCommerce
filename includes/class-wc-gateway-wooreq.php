@@ -72,6 +72,12 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 * @version 0.0.1
 	 */
 	public function wooreq_email_order_meta_fields( $fields, $sent_to_admin, $order ) {
+		
+		// Only show the extra fields if the payment method is 'Pay with Request'
+		if ( $order->get_payment_method() != "wooreq" ) {
+			return $fields;
+		}
+
 		// Total ETH paid
 	    $fields['eth_paid'] = array(
 	        'label' => __( 'ETH Paid' ),
@@ -286,7 +292,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 
 			$timezone = get_option( 'timezone_string' );
 
-			update_post_meta( $order_id, 'eth_value', $eth_value . " ETH / GBP" );
+			update_post_meta( $order_id, 'eth_value', $eth_value . " ETH / " . get_woocommerce_currency() );
 			update_post_meta( $order_id, 'total_owed_in_eth', $total_owed_in_eth . " ETH" );
 			update_post_meta( $order_id, 'eth_conversion_time', date( "d F Y H:i:s T", $eth_conversion_time ) );
 			update_post_meta( $order_id, 'total_owed_in_eth_raw', $total_owed_in_eth );
