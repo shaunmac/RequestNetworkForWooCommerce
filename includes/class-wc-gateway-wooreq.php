@@ -72,6 +72,12 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 * @version 0.0.1
 	 */
 	public function wooreq_email_order_meta_fields( $fields, $sent_to_admin, $order ) {
+		
+		// Only show the extra fields if the payment method is 'Pay with Request'
+		if ( $order->get_payment_method() != "wooreq" ) {
+			return $fields;
+		}
+
 		// Total ETH paid
 	    $fields['eth_paid'] = array(
 	        'label' => __( 'ETH Paid' ),
