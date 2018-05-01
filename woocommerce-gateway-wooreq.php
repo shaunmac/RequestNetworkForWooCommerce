@@ -4,8 +4,8 @@
  * Plugin URI: https://wooreq.com
  * Description: Accept cryptocurrency payments on your store using the Request Network.
  * Author: Adam Dowson	
- * Author URI: https://wooreq.com
- * Version: 0.0.0.1
+ * Author URI: https://wooreq.com/about/
+ * Version: 0.1.0
  * Requires at least: 4.4
  * Tested up to: 4.9.5
  * WC requires at least: 2.6
@@ -88,8 +88,8 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		/**
 		 * Init the plugin after plugins_loaded so environment variables are set.
 		 *
-		 * @since 0.0.1
-		 * @version 0.0.1
+		 * @since 0.1.0
+		 * @version 0.1.0
 		 */
 		public function init() {
 			require_once( dirname( __FILE__ ) . '/includes/class-wc-wooreq-exception.php' );
@@ -113,8 +113,8 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		/**
 		 * Hides any admin notices.
 		 *
-		 * @since 0.0.1
-		 * @version 0.0.1
+		 * @since 0.1.0
+		 * @version 0.1.0
 		 */
 		public function hide_notices() {
 			if ( isset( $_GET['wc-wooreq-hide-notice'] ) && isset( $_GET['_wc_wooreq_notice_nonce'] ) ) {
@@ -139,8 +139,8 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		/**
 		 * Allow this class and other classes to add slug keyed notices (to avoid duplication).
 		 *
-		 * @since 0.0.1
-		 * @version 0.0.1
+		 * @since 0.1.0
+		 * @version 0.1.0
 		 */
 		public function add_admin_notice( $slug, $class, $message, $dismissible = false ) {
 			$this->notices[ $slug ] = array(
@@ -154,8 +154,8 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		 * Checks the environment for compatibility problems.  Returns a string with the first incompatibility
 		 * found or false if the environment has no problems.
 		 *
-		 * @since 0.0.1
-		 * @version 0.0.1
+		 * @since 0.1.0
+		 * @version 0.1.0
 		 */
 		public function get_environment_warning() {
 			if ( version_compare( phpversion(), WC_WOOREQ_MIN_PHP_VER, '<' ) ) {
@@ -186,7 +186,7 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		/**
 		 * Get setting link.
 		 *
-		 * @since 0.0.1
+		 * @since 0.1.0
 		 *
 		 * @return string Setting link
 		 */
@@ -202,8 +202,8 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		 * The backup sanity check, in case the plugin is activated in a weird way,
 		 * or the environment changes after activation. Also handles upgrade routines.
 		 *
-		 * @since 0.0.1
-		 * @version 0.0.1
+		 * @since 0.1.0
+		 * @version 0.1.0
 		 */
 		public function check_environment() {
 			if ( ! defined( 'IFRAME_REQUEST' ) && ( WC_WOOREQ_VERSION !== get_option( 'wc_wooreq_version' ) ) ) {
@@ -242,8 +242,8 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		/**
 		 * Updates the plugin version in db
 		 *
-		 * @since 0.0.1
-		 * @version 0.0.1
+		 * @since 0.1.0
+		 * @version 0.1.0
 		 */
 		public function update_plugin_version() {
 			delete_option( 'wc_wooreq_version' );
@@ -253,7 +253,7 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		/**
 		 * Handles upgrade routines.
 		 *
-		 * @since 0.0.1
+		 * @since 0.1.0
 		 * @version 3.1.0
 		 */
 		public function install() {
@@ -267,8 +267,8 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		/**
 		 * Adds plugin action links.
 		 *
-		 * @since 0.0.1
-		 * @version 0.0.1
+		 * @since 0.1.0
+		 * @version 0.1.0
 		 */
 		public function plugin_action_links( $links ) {
 			$plugin_links = array(
@@ -282,8 +282,8 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		/**
 		 * Add the gateways to WooCommerce.
 		 *
-		 * @since 0.0.1
-		 * @version 0.0.1
+		 * @since 0.1.0
+		 * @version 0.1.0
 		 */
 		public function add_gateways( $methods ) {
 			$methods[] = 'WC_Gateway_WooReq';
@@ -293,8 +293,8 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		/**
 		 * Modifies the order of the gateways displayed in admin.
 		 *
-		 * @since 0.0.1
-		 * @version 0.0.1
+		 * @since 0.1.0
+		 * @version 0.1.0
 		 */
 		public function filter_gateway_order_admin( $sections ) {
 			unset( $sections['wooreq'] );

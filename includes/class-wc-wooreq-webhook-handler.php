@@ -7,25 +7,27 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class WC_WooReq_Webhook_Handler.
  *
  * Handles webhooks from WooReq on sources that are not immediately chargeable.
- * @since 0.0.1
+ * @since 0.1.0
  */
 class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 
 	/**
 	 * Constructor.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 */
 	public function __construct() {
 		add_action( 'woocommerce_api_wooreq_process', array( $this, 'wooreq_process_callback' ) );
+		add_action( 'woocommerce_api_wooreq_txid', array( $this, 'wooreq_txid_callback' ) );
 	}
+
 
 	/**
 	 * Check incoming requests for WooReq webhook data and process them.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 */
 	public function wooreq_process_callback( ) {
 
@@ -109,10 +111,66 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	}
 
 	/**
+	 * Adds the TXID to the order, this is extremely useful for store owners as low GWEI gas prices can cause transactions to take several hours to confirm.
+	 * This allows the store owner to manually check the blockchain to process orders. 
+	 *
+	 * @since 0.1.0
+	 * @version 0.1.0
+	 * @return bool
+	 */
+	public function wooreq_txid_callback( ) {
+
+		if ( ( 'GET' !== $_SERVER['REQUEST_METHOD'] ) || ! $this->is_valid_request( $_GET ) )
+		{
+			WC_WooReq_Logger::log( 'Incoming callback failed for TXID validation: ' . print_r( $_GET, true ) );
+			wp_send_json_error( );
+			exit;
+		} 
+
+		try {
+			$order_id 		= wc_get_order_id_by_order_key( wc_clean( stripslashes ( $_GET['key'] ) ) );
+			$order 			= wc_get_order( $order_id );
+
+			if ( ! is_object( $order ) ) {
+				WC_WooReq_Logger::log( 'Error: is_object( $order ) in TXID callback check failed.' );
+				wp_send_json_error( );
+				exit;
+			}
+
+			if ( 'processing' === $order->get_status() || 'completed' === $order->get_status() || 'on-hold' === $order->get_status() ) {
+				WC_WooReq_Logger::log( 'Error: get_status check for in order failed. Already in process, completed or on-hold. TXID Callback' );
+				wp_send_json_error( );
+				exit;
+			}
+
+			$txid = wc_clean( stripslashes ( $_GET['wooreq_txid'] ) );
+
+			if ( !empty( $txid ) ) {
+
+				update_post_meta( $order_id, 'txid', $txid );
+				wp_send_json_success( );
+				exit;
+			} 
+			else {
+				WC_WooReq_Logger::log( 'Error: wooreq_txid_callback empty check.' );
+				wp_send_json_error( );
+			}
+
+		} catch ( WC_WooReq_Exception $e ) {
+			WC_WooReq_Logger::log( 'Error: ' . $e->getMessage() );
+
+			wp_send_json_error( );
+			exit;
+		}
+		exit;
+
+	}
+
+	/**
 	 * Validates the incoming transaction ID, checks if it's mined, the recieving address and the amounts.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @return bool
 	 */
 	private function check_txid( $order_id, $txid, $expected_amount ) {
@@ -220,8 +278,8 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Checks if the transaction has been mined. We validate this on https://sign.wooreq.com/validate but we need to check server side to be safe.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @return bool
 	 */
 	private function is_mined( $network_url, $txid ) {
@@ -259,8 +317,8 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Checks the amount sent in the transaction - we have to consider the REQ fee too.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @return bool
 	 */
 	private function is_correct_amount( $value_sent, $expected_amount ) {
@@ -289,8 +347,8 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Verify the incoming webhook notification to make sure it's valid.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @param string $request_headers The request headers from WooReq.
 	 * @param string $request_body The request body from WooReq.
 	 * @return bool
@@ -310,8 +368,8 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Checks the TXID returned from https://sign.wooreq.com to see if it was cancelled.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @param string $request_headers The request headers from WooReq.
 	 * @param string $request_body The request body from WooReq.
 	 * @return bool

@@ -48,7 +48,7 @@ return apply_filters( 'wc_wooreq_settings',
 			'label'       => __( 'Log debug messages', 'woocommerce-gateway-wooreq' ),
 			'type'        => 'checkbox',
 			'description' => __( 'Save debug messages to the WooCommerce System Status log.', 'woocommerce-gateway-wooreq' ),
-			'default'     => 'no',
+			'default'     => 'true',
 			'desc_tip'    => true,
 		),
 	)

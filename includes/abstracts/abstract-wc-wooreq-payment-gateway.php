@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @extends WC_Payment_Gateway_CC
  *
- * @since 0.0.1
+ * @since 0.1.0
  */
 abstract class WC_WooReq_Payment_Gateway extends WC_Payment_Gateway_CC {
 
@@ -44,8 +44,8 @@ abstract class WC_WooReq_Payment_Gateway extends WC_Payment_Gateway_CC {
 	/**
 	 * Allow this class and other classes to add slug keyed notices (to avoid duplication).
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 */
 	public function add_admin_notice( $slug, $class, $message ) {
 		$this->notices[ $slug ] = array(
@@ -57,8 +57,8 @@ abstract class WC_WooReq_Payment_Gateway extends WC_Payment_Gateway_CC {
 	/**
 	 * All payment icons that work with WooReq.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @return array
 	 */
 	public function payment_icons() {
@@ -70,8 +70,8 @@ abstract class WC_WooReq_Payment_Gateway extends WC_Payment_Gateway_CC {
 	/**
 	 * Gets the transaction URL linked to WooReq dashboard.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 */
 	public function get_transaction_url( $order ) {
 
@@ -89,8 +89,8 @@ abstract class WC_WooReq_Payment_Gateway extends WC_Payment_Gateway_CC {
 	/**
 	 * Builds the return URL from redirects.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @param object $order
 	 * @param int $id WooReq session id.
 	 */
@@ -116,8 +116,8 @@ abstract class WC_WooReq_Payment_Gateway extends WC_Payment_Gateway_CC {
 	/**
 	 * Sends the failed order email to admin.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @param int $order_id
 	 * @return null
 	 */
