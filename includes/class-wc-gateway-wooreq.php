@@ -68,8 +68,8 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Adds the cryptocurrency information to the confirmation email
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 */
 	public function wooreq_email_order_meta_fields( $fields, $sent_to_admin, $order ) {
 		// Total ETH paid
@@ -114,7 +114,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Checks if gateway should be available to use.
 	 *
-	 * @since 0.0.1
+	 * @since 0.1.0
 	 */
 	public function is_available() {
 		return parent::is_available();
@@ -123,8 +123,8 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Returns the available currency icons.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @return string
 	 */
 	public function get_icon() {
@@ -140,8 +140,8 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Initialise the gateway form fields
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 */
 	public function init_form_fields() {
 		$this->form_fields = require( dirname( __FILE__ ) . '/admin/wooreq-settings.php' );
@@ -150,8 +150,8 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Renders the payment form on the checkout page.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 */
 	public function payment_fields() {
 		$user                 = wp_get_current_user();
@@ -207,8 +207,8 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Renders the WooReq button.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 */
 	public function pay_with_request() {
 		?>
@@ -223,8 +223,8 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 *
 	 * Outputs scripts used for wooreq payment
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 */
 	public function payment_scripts() {
 		if ( ! is_cart() && ! is_checkout() && ! isset( $_GET['pay_for_order'] ) && ! isset( $_GET['change_payment_method'] ) ) {
@@ -234,7 +234,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 		wp_register_style( 'wooreq_paymentfonts', plugins_url( 'assets/css/wooreq-paymentfonts.css', WC_WOOREQ_MAIN_FILE ), array(), '1.2.5' );
 		wp_enqueue_style( 'wooreq_paymentfonts' );
 
-		wp_register_style( 'wooreq_css', plugins_url( 'assets/css/wooreq.css', WC_WOOREQ_MAIN_FILE ), array(), '0.0.1' );
+		wp_register_style( 'wooreq_css', plugins_url( 'assets/css/wooreq.css', WC_WOOREQ_MAIN_FILE ), array(), '0.1.0' );
 		wp_enqueue_style( 'wooreq_css' );
 
 		if ( isset( $_GET['pay_for_order'] ) && 'true' === $_GET['pay_for_order'] ) {
@@ -265,8 +265,8 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Process the payment
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @param int  $order_id Reference.
 	 * @param bool $retry Should we retry on fail.
 	 *
@@ -367,8 +367,8 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	/**
 	 * Displays the order confirmation page
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @param int  $order_id Reference.
 	 *
 	 *

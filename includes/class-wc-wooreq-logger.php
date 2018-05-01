@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Logging class
  *
- * @since 0.0.1
- * @version 0.0.1
+ * @since 0.1.0
+ * @version 0.1.0
  */
 class WC_WooReq_Logger {
 
@@ -17,8 +17,8 @@ class WC_WooReq_Logger {
 	/**
 	 * Used for logging messages to the log
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 */
 	public static function log( $message, $start_time = null, $end_time = null ) {
 		if ( empty( self::$logger ) ) {

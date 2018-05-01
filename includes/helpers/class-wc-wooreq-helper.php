@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Provides static methods as helpers.
  *
- * @since 0.0.1
+ * @since 0.1.0
  */
 class WooReq_Helper {
 
@@ -33,8 +33,8 @@ class WooReq_Helper {
 	/**
 	 * Gets the current crypto conversion rate from cryptocompare. get_woocommerce_currency()
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @return float
 	 */
 	public static function get_crypto_rate( $base_currency = '', $crypto_currency = 'ETH' ) {
@@ -73,8 +73,8 @@ class WooReq_Helper {
 	/**
 	 * Gets the amount the customer owns in crypto
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @return int|float
 	 */
 	public static function calculate_amount_owed_crypto( $total, $rate ) {
@@ -84,8 +84,8 @@ class WooReq_Helper {
 	/**
 	 * List of currencies supported by WooReq that has no decimals.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @return array $currencies
 	 */
 	public static function no_decimal_currencies() {
@@ -112,8 +112,8 @@ class WooReq_Helper {
 	 * Gets all the saved setting options from a specific method.
 	 * If specific setting is passed, only return that.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @param string $method The payment method to get the settings from.
 	 * @param string $setting The name of the setting to get.
 	 */
@@ -130,8 +130,8 @@ class WooReq_Helper {
 	/**
 	 * Check if WC version is pre 3.0.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @return bool
 	 */
 	public static function is_pre_30() {
@@ -141,8 +141,8 @@ class WooReq_Helper {
 	/**
 	 * Gets the webhook URL that's used to process the transaction. 
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @return string
 	 */
 	public static function get_webhook_url() {
@@ -152,8 +152,8 @@ class WooReq_Helper {
 	/**
 	 * Converts Hex -> Decimals (WEI) correctly.
 	 *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @param string $hex
 	 */
     public static function bchexdec( $hex ) {
@@ -172,8 +172,8 @@ class WooReq_Helper {
      * Tests if the given string qualifies as a Ethereum address.
      * (DATA, 20 Bytes - address)
      *
-	 * @since 0.0.1
-	 * @version 0.0.1
+	 * @since 0.1.0
+	 * @version 0.1.0
 	 * @param string $address
 	 * @param bool   $throw
 	 * @return bool
@@ -197,8 +197,8 @@ class WooReq_Helper {
 
     /**
      * Test if a string is prefixed with "0x".
-     * @since 0.0.1
-	 * @version 0.0.1
+     * @since 0.1.0
+	 * @version 0.1.0
      * @param string $str
      * @return bool
      */
@@ -210,8 +210,8 @@ class WooReq_Helper {
 
     /**
      * Remove Hex Prefix "0x".
-     * @since 0.0.1
-	 * @version 0.0.1
+     * @since 0.1.0
+	 * @version 0.1.0
      * @param string $str
      * @return string
      */
