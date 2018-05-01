@@ -4,7 +4,7 @@
  *
  * Extends Exception to provide additional data
  *
- * @since 0.0.1
+ * @since 0.1.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -19,7 +19,7 @@ class WC_WooReq_Exception extends Exception {
 	/**
 	 * Setup exception
 	 *
-	 * @since 0.0.1
+	 * @since 0.1.0
 	 * @param string $error_message Full response
 	 * @param string $localized_message user-friendly translated error message
 	 */
@@ -31,7 +31,7 @@ class WC_WooReq_Exception extends Exception {
 	/**
 	 * Returns the localized message.
 	 *
-	 * @since 0.0.1
+	 * @since 0.1.0
 	 * @return string
 	 */
 	public function getLocalizedMessage() {
