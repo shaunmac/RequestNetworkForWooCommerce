@@ -167,7 +167,7 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	}
 
 	/**
-	 * Validates the incoming transaction ID, checks if it's mined, the recieving address and the amounts.
+	 * Validates the incoming transaction ID, checks if it's mined, the receiving address and the amounts.
 	 *
 	 * @since 0.1.0
 	 * @version 0.1.0

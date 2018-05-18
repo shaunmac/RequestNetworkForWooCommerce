@@ -1,0 +1,19 @@
+*** Changelog ***
+
+= 0.1.2 - 2018-05-15 =
+* Add - ERC20 payment options (REQ, DGX, DAI, OMG, KNC).
+* Add - Bitcoin payment option
+* Add - BCMath dependency warning
+* Add - Select2 for the currency multiselect
+* Fix - Admin notices
+* Tweak - Change the default state of the test mode checkbox to unchecked
+
+= 0.1.1 - 2018-04-30 =
+* Add - WooCommerce automatic updater
+* Add - TXID webhook to add TXID to the metadata from the API
+* Fix - Hardcoded GBP value changed to get_woocommerce_currency()
+* Tweak - Enable logging by default
+* Update - Readme
+
+= 0.1.0 - 2018-04-27 =
+* First Release

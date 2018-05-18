@@ -5,7 +5,7 @@
  * Description: Accept cryptocurrency payments on your store using the Request Network.
  * Author: Adam Dowson	
  * Author URI: https://wooreq.com/about/
- * Version: 0.1.0
+ * Version: 0.1.1
  * Requires at least: 4.4
  * Tested up to: 4.9.5
  * WC requires at least: 2.6
@@ -18,11 +18,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once( dirname( __FILE__ ) . '/woo-includes/woo-functions.php' );
+
+/**
+ * WooCommerce fallback notice.
+ *
+ * @since 0.1.2
+ * @return string
+ */
+function woocommerce_wooreq_missing_wc_notice() {
+	echo '<div class="error"><p><strong>' . sprintf( esc_html__( 'Request Network for WooCommerce requires WooCommerce to be installed and active. You can download %s here.', 'woocommerce-gateway-wooreq' ), '<a href="https://woocommerce.com/" target="_blank">WooCommerce</a>' ) . '</strong></p></div>';
+}
+
+if ( ! wc_wooreq_is_wc_active() ) {
+	add_action( 'admin_notices', 'woocommerce_wooreq_missing_wc_notice' );
+	return;
+}
+
 if ( ! class_exists( 'WC_WooReq' ) ) :
 	/**
 	 * Required minimums and constants
 	 */
-	define( 'WC_WOOREQ_VERSION', '0.1.0' );
+	define( 'WC_WOOREQ_VERSION', '0.1.2' );
 	define( 'WC_WOOREQ_MIN_PHP_VER', '5.6.0' );
 	define( 'WC_WOOREQ_MIN_WC_VER', '2.6.0' );
 	define( 'WC_WOOREQ_MAIN_FILE', __FILE__ );
@@ -83,6 +100,10 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 			add_action( 'admin_init', array( $this, 'check_environment' ) );
 			add_action( 'plugins_loaded', array( $this, 'init' ) );
 			add_action( 'wp_loaded', array( $this, 'hide_notices' ) );
+			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+
+			add_action( 'admin_head', array( $this, 'admin_styles' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
 		}
 
 		/**
@@ -132,6 +153,17 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 					case 'ssl':
 						update_option( 'wc_wooreq_show_ssl_notice', 'no' );
 						break;
+					case 'eth_address':
+						update_option( 'wc_wooreq_show_eth_address_notice', 'no' );
+						break;
+					case 'btc_address':
+						update_option( 'wc_wooreq_show_btc_address_notice', 'no' );
+						break;
+					case 'empty_currencies':
+						update_option( 'wc_wooreq_show_empty_currencies_notice', 'no' );
+						break;
+
+
 				}
 			}
 		}
@@ -151,11 +183,39 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		}
 
 		/**
+		 * Display any notices we've collected thus far.
+		 *
+		 * @since 0.1.2
+		 * @version 0.1.2
+		 */
+		public function admin_notices() {
+			if ( ! current_user_can( 'manage_woocommerce' ) ) {
+				return;
+			}
+
+			$this->check_environment();
+
+			foreach ( (array) $this->notices as $notice_key => $notice ) {
+				echo '<div class="' . esc_attr( $notice['class'] ) . '" style="position:relative;">';
+
+				if ( $notice['dismissible'] ) {
+				?>
+					<a href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'wc-wooreq-hide-notice', $notice_key ), 'wc_wooreq_hide_notices_nonce', '_wc_wooreq_notice_nonce' ) ); ?>" class="woocommerce-message-close notice-dismiss" style="position:absolute;right:1px;padding:9px;text-decoration:none;"></a>
+				<?php
+				}
+
+				echo '<p>';
+				echo wp_kses( $notice['message'], array( 'a' => array( 'href' => array() ) ) );
+				echo '</p></div>';
+			}
+		}
+
+		/**
 		 * Checks the environment for compatibility problems.  Returns a string with the first incompatibility
 		 * found or false if the environment has no problems.
 		 *
 		 * @since 0.1.0
-		 * @version 0.1.0
+		 * @version 0.1.1
 		 */
 		public function get_environment_warning() {
 			if ( version_compare( phpversion(), WC_WOOREQ_MIN_PHP_VER, '<' ) ) {
@@ -178,6 +238,11 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 
 			if ( ! function_exists( 'curl_init' ) ) {
 				return __( 'WooCommerce WooReq - cURL is not installed.', 'woocommerce-gateway-wooreq' );
+			}
+
+			if ( ! extension_loaded( 'bcmath' ) ) {
+				$message = __( 'WooCommerce WooReq - The BCMath module is not installed. Please view the dependencies <a href="%s">here.</a>', 'woocommerce-gateway-wooreq' );
+				return sprintf( $message, 'https://github.com/AdamDowson/RequestNetworkForWooCommerce#dependencies' );
 			}
 
 			return false;
@@ -218,15 +283,41 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 				$this->add_admin_notice( 'bad_environment', 'error', $environment_warning );
 			}
 
-			$show_ssl_notice  = get_option( 'wc_wooreq_show_ssl_notice' );
+			// Notices
+			$show_ssl_notice  				= get_option( 'wc_wooreq_show_ssl_notice' );
+			$show_eth_address_notice 		= get_option( 'wc_wooreq_show_eth_address_notice' );
+			$show_btc_address_notice 		= get_option( 'wc_wooreq_show_btc_address_notice' );
+			$show_empty_currenciess_notice 	= get_option( 'wc_wooreq_show_empty_currencies_notice' );
+
 			$options          = get_option( 'woocommerce_wooreq_settings' );
 			$testmode         = ( isset( $options['testmode'] ) && 'yes' === $options['testmode'] ) ? true : false;
-			$payment_address  = isset( $options['payment_address'] ) ? $options['payment_address'] : '';
+			$eth_payment_address  = isset( $options['eth_payment_address'] ) ? $options['eth_payment_address'] : '';
+			$btc_payment_address  = isset( $options['btc_payment_address'] ) ? $options['btc_payment_address'] : '';
+			$accepted_currencies = $options['accepted_currencies'];
 
 			if ( isset( $options['enabled'] ) && 'yes' === $options['enabled'] && empty( $show_keys_notice ) ) {
 
-				if ( empty( $payment_address ) ) {
-					$this->add_admin_notice( 'payment_address', 'notice notice-warning', 'Pay with Request is enabled, but you must enter a valid payment address.', 'woocommerce-gateway-wooreq' );
+				if ( empty( $show_eth_address_notice ) ) {
+					if ( !empty ( $accepted_currencies ) && in_array ( 'ETH', $accepted_currencies ) ) {
+						if ( empty( $eth_payment_address ) ) {
+							$this->add_admin_notice( 'eth_address', 'notice notice-error', 'You have selected ETH as a payment option but no ETH wallet address has been provided.', 'woocommerce-gateway-wooreq' );
+						}
+					}
+				}
+
+				if ( empty( $show_empty_currenciess_notice ) ) {
+					if ( empty ( $accepted_currencies ) ) {
+						$this->add_admin_notice( 'empty_currencies', 'notice notice-error', 'No accepted currencies have been selected.', 'woocommerce-gateway-wooreq' );
+					}		
+				}
+	
+				
+				if ( empty( $show_btc_address_notice ) ) {
+					if ( !empty ( $accepted_currencies ) && in_array ( 'BTC', $accepted_currencies ) ) {
+						if ( empty( $btc_payment_address ) ) {
+							$this->add_admin_notice( 'btc_address', 'notice notice-error', 'You have selected BTC as a payment option but no BTC wallet address has been provided.', 'woocommerce-gateway-wooreq' );
+						}
+					}
 				}
 			}
 
@@ -302,6 +393,38 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 			$sections['wooreq'] = 'Request Network';
 
 			return $sections;
+		}
+
+		/**
+		 * Load admin styles.
+		 *
+		 * @since 0.1.1
+		 * @version 0.1.1
+		 */
+		public function admin_styles() {
+			if ( 'woocommerce_page_wc-settings' !== get_current_screen()->id ) {
+				return;
+			}
+
+			wp_register_style( 'wooreq_admin_styles', plugins_url( 'assets/css/admin.css', WC_WOOREQ_MAIN_FILE ), array(), WC_WOOREQ_VERSION, true );
+			wp_enqueue_style( 'wooreq_admin_styles' );
+
+		}
+
+		/**
+		 * Load admin scripts.
+		 *
+		 * @since 0.1.1
+		 * @version 0.1.1
+		 */
+		public function admin_scripts() {
+			if ( 'woocommerce_page_wc-settings' !== get_current_screen()->id ) {
+				return;
+			}
+
+			wp_enqueue_script( 'woocommerce_wooreq_admin_select', plugins_url( 'assets/js/select2.min.js', WC_WOOREQ_MAIN_FILE ), array(), WC_WOOREQ_VERSION, true );
+			wp_enqueue_script( 'woocommerce_wooreq_admin', plugins_url( 'assets/js/admin.js', WC_WOOREQ_MAIN_FILE ), array(), WC_WOOREQ_VERSION, true );
+			
 		}
 	}
 

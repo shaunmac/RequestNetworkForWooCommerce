@@ -31,6 +31,30 @@ class WooReq_Helper {
 	}
 
 	/**
+	 * Get payment currency from the payment_scripts() POST list
+	 *
+	 * @param array  $checkout_vars POST variables passed back from the checkout form
+	 *
+	 * @return string
+	 */
+	public static function get_payment_currency( $checkout_vars ) {
+
+		$ret_val = 'ETH';
+
+		if ( !empty( $checkout_vars ) ) {
+			$post_data = $checkout_vars['post_data'];
+			parse_str( $post_data, $parts );
+
+			if ( array_key_exists( 'payment_currency', $parts ) ) {
+				$payment_currency = $parts['payment_currency'];
+				return $payment_currency;
+			}
+		}
+
+		return $ret_val;
+	}
+
+	/**
 	 * Gets the current crypto conversion rate from cryptocompare. get_woocommerce_currency()
 	 *
 	 * @since 0.1.0

@@ -19,11 +19,25 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	public $testmode;
 
 	/**
-	 * Recieving address
+	 * receiving eth address
 	 *
 	 * @var string
 	 */
-	public $payment_address;
+	public $eth_payment_address;
+
+	/**
+	 * receiving btc address
+	 *
+	 * @var string
+	 */
+	public $btc_payment_address;
+
+	/**
+	 * accepted currencies
+	 *
+	 * @var array
+	 */
+	public $accepted_currencies;
 
 
 	/**
@@ -50,7 +64,9 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 		// Get setting values.
 		$this->title                   = $this->get_option( 'title' );
 		$this->description             = $this->get_option( 'description' );
-		$this->payment_address         = $this->get_option( 'payment_address' );
+		$this->eth_payment_address     = $this->get_option( 'eth_payment_address' );
+		$this->btc_payment_address     = $this->get_option( 'btc_payment_address' );
+		$this->accepted_currencies     = $this->get_option( 'accepted_currencies' );
 		$this->enabled                 = $this->get_option( 'enabled' );
 		$this->testmode                = 'yes' === $this->get_option( 'testmode' );
 
@@ -78,20 +94,22 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			return $fields;
 		}
 
+		$currency = get_post_meta( $order->get_id(), 'currency', true );
+
 		// Total ETH paid
-	    $fields['eth_paid'] = array(
-	        'label' => __( 'ETH Paid' ),
-	        'value' => get_post_meta( $order->get_id(), 'total_owed_in_eth_raw', true ) . " ETH",
+	    $fields['paid'] = array(
+	        'label' => __( $currency . ' Paid' ),
+	        'value' => get_post_meta( $order->get_id(), 'total_owed_raw', true ) . ' ' . $currency,
 	    );
 
-	    $fields['eth_conversion_time'] = array(
-	        'label' => __( 'ETH Conversion Time' ),
-	        'value' => get_post_meta( $order->get_id(), 'eth_conversion_time', true ),
+	    $fields['conversion_time'] = array(
+	        'label' => __( 'Conversion Time' ),
+	        'value' => get_post_meta( $order->get_id(), 'conversion_time', true ),
 	    );
 
 	  	$fields['conversion_rate'] = array(
 	        'label' => __( 'Conversion Rate' ),
-	        'value' => get_post_meta( $order->get_id(), 'eth_value', true ),
+	        'value' => get_post_meta( $order->get_id(), 'value', true ),
 	    );
 
 	    // Display the transaction 
@@ -130,7 +148,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 * Returns the available currency icons.
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 * @return string
 	 */
 	public function get_icon() {
@@ -139,6 +157,12 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 		$icons_str = '';
 
 		$icons_str .= $icons['eth'];
+		$icons_str .= $icons['btc'];
+		$icons_str .= $icons['req'];
+		$icons_str .= $icons['omg'];
+		$icons_str .= $icons['knc'];
+		$icons_str .= $icons['gdx'];
+		$icons_str .= $icons['dai'];
 
 		return apply_filters( 'woocommerce_gateway_icon', $icons_str, $this->id );
 	}
@@ -153,11 +177,12 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 		$this->form_fields = require( dirname( __FILE__ ) . '/admin/wooreq-settings.php' );
 	}
 
+
 	/**
 	 * Renders the payment form on the checkout page.
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 */
 	public function payment_fields() {
 		$user                 = wp_get_current_user();
@@ -176,38 +201,58 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			}
 		}
 
-		$total_owed_fiat = WooReq_Helper::get_wooreq_amount( $total );
-		$current_exchange_rate = WooReq_Helper::get_crypto_rate();
-		$total_owed_crypto = WooReq_Helper::calculate_amount_owed_crypto( $total_owed_fiat, $current_exchange_rate );
+		$payment_currency = esc_attr( WooReq_Helper::get_payment_currency( $_POST ) );
+		$total_owed_fiat = esc_attr( WooReq_Helper::get_wooreq_amount( $total ) );
+		$current_exchange_rate = esc_attr( WooReq_Helper::get_crypto_rate( get_woocommerce_currency(), $payment_currency ) );
+		$total_owed_crypto = esc_attr( WooReq_Helper::calculate_amount_owed_crypto( $total_owed_fiat, $current_exchange_rate ) );
 
-		echo '<div id="wooreq-payment">';
 
-		echo '<p>Total to pay in ETH: <b>' . $total_owed_crypto . ' </b></p>';
-		echo '<p>Current rate: <b>' . $current_exchange_rate . 'ETH / ' . get_woocommerce_currency()   . ' </b></p>';
+		?>
 
-		WC()->session->set(
-			'wooreq_crypto_manager',
-			array(
-				'eth_value' 			=> $current_exchange_rate,
-				'total_owed_in_eth'		=> $total_owed_crypto,
-				'timestamp' 			=> time(),
-			)
-		);
+		<div id="wooreq-payment">
+			<select name="payment_currency" id="payment_currency">
+				<?php
+					foreach ($this->accepted_currencies as $key => $value) {
+						if ( $value == $payment_currency ) {
+							echo "<option selected value={$value}>{$value}</option>";
+						} else {
+							echo "<option value={$value}>{$value}</option>";
+						}			
+					}
+				?>
+			</select>
+			<p>Total to pay in <?= $payment_currency ?>: <b> <?= $total_owed_crypto ?></b></p>
+			<p>Current rate: <b> <?= $current_exchange_rate ?> <?= $payment_currency ?> / <?= get_woocommerce_currency() ?></b></p>
+			
+			<?php
 
-		if ( $this->description ) {
-			if ( $this->testmode ) {
-				/* translators: link to WooReq testing page */
-				$this->description .= ' ' . sprintf( __( '<i>Please note, Request for WooCommerce is currently in testmode and all payments are through the Rinkeby test net. If you need some "test" ETH you can use the Rinkeby faucet <a href="%s" target="_blank">here</a></i>.</br></br>', 'woocommerce-gateway-wooreq' ), 'https://faucet.rinkeby.io/' );
+			WC()->session->set(
+				'wooreq_crypto_manager',
+				array(
+					'currency'			=> $payment_currency,
+					'value' 			=> $current_exchange_rate,
+					'total_owed'		=> $total_owed_crypto,
+					'timestamp' 		=> time()
+				)
+			);
 
-				$this->description  = trim( $this->description );
+			if ( $this->description ) {
+				if ( $this->testmode ) {
+					/* translators: link to WooReq testing page */
+					$this->description .= ' ' . sprintf( __( '<i>Please note, Request for WooCommerce is currently in testmode and all payments are through the Rinkeby test net. If you need some "test" ETH you can use the Rinkeby faucet <a href="%s" target="_blank">here</a></i>.</br></br>', 'woocommerce-gateway-wooreq' ), 'https://faucet.rinkeby.io/' );
+
+					$this->description  = trim( $this->description );
+				}
+				echo apply_filters( 'wc_wooreq_description', wpautop( wp_kses_post( $this->description ) ) );
 			}
-			echo apply_filters( 'wc_wooreq_description', wpautop( wp_kses_post( $this->description ) ) );
-		}
 
-		$this->pay_with_request();
-		echo '<div class="wooreq-errors" role="alert"></div>';
+			$this->pay_with_request();
 
-		echo '</div>';
+			?>
+			<div class="wooreq-errors" role="alert"></div>
+		</div>
+
+		<?php 
 	}
 
 	/**
@@ -218,9 +263,11 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 */
 	public function pay_with_request() {
 		?>
+
 		<fieldset id="wc-<?php echo esc_attr( $this->id ); ?>-form" style="background:transparent;">
 			<button id="request-payment-button">Pay with Request</button>
 		</fieldset>
+
 		<?php
 	}
 
@@ -237,11 +284,14 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			return;
 		}
 
-		wp_register_style( 'wooreq_paymentfonts', plugins_url( 'assets/css/wooreq-paymentfonts.css', WC_WOOREQ_MAIN_FILE ), array(), '1.2.5' );
+		wp_register_style( 'wooreq_paymentfonts', plugins_url( 'assets/css/wooreq-payment-font.css', WC_WOOREQ_MAIN_FILE ), array(), '1.2.5' );
 		wp_enqueue_style( 'wooreq_paymentfonts' );
 
 		wp_register_style( 'wooreq_css', plugins_url( 'assets/css/wooreq.css', WC_WOOREQ_MAIN_FILE ), array(), '0.1.0' );
 		wp_enqueue_style( 'wooreq_css' );
+
+		wp_enqueue_script( 'woocommerce_wooreq_checkout_select', plugins_url( 'assets/js/select2.min.js', WC_WOOREQ_MAIN_FILE ), array(), WC_WOOREQ_VERSION, true );
+		wp_enqueue_script( 'woocommerce_wooreq_checkout', plugins_url( 'assets/js/checkout.js', WC_WOOREQ_MAIN_FILE ), array(), WC_WOOREQ_VERSION, true );
 
 		if ( isset( $_GET['pay_for_order'] ) && 'true' === $_GET['pay_for_order'] ) {
 			$order_id = wc_get_order_id_by_order_key( urldecode( $_GET['key'] ) );
@@ -286,21 +336,32 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 
 			$stored_info = WC()->session->get( 'wooreq_crypto_manager' );
 
-			$eth_value = $stored_info['eth_value'];
-			$total_owed_in_eth = $stored_info['total_owed_in_eth'];
-			$eth_conversion_time = $stored_info['timestamp'];
+			$currency = $stored_info['currency'];
+			$value = $stored_info['value'];
+			$total_owed = $stored_info['total_owed'];
+			$conversion_time = $stored_info['timestamp'];
 
 			$timezone = get_option( 'timezone_string' );
 
-			update_post_meta( $order_id, 'eth_value', $eth_value . " ETH / " . get_woocommerce_currency() );
-			update_post_meta( $order_id, 'total_owed_in_eth', $total_owed_in_eth . " ETH" );
-			update_post_meta( $order_id, 'eth_conversion_time', date( "d F Y H:i:s T", $eth_conversion_time ) );
-			update_post_meta( $order_id, 'total_owed_in_eth_raw', $total_owed_in_eth );
-			update_post_meta( $order_id, 'to_address', $this->payment_address );
+			update_post_meta( $order_id, 'currency', $currency );
+			update_post_meta( $order_id, 'value', $value . ' ' . $currency  . " / " . get_woocommerce_currency() );
+			update_post_meta( $order_id, 'total_owed', $total_owed . ' ' . $currency );
+			update_post_meta( $order_id, 'conversion_time', date( "d F Y H:i:s T", $conversion_time ) );
+			update_post_meta( $order_id, 'total_owed_raw', $total_owed );
+
+			// If the payment currency is BTC use the BTC payment address
+			$to_address = "";
+			if ( $currency == 'BTC' ) {
+				$to_address = $this->btc_payment_address;
+			} else {
+				$to_address = $this->eth_payment_address;
+			}
+
+			update_post_meta( $order_id, 'to_address', $to_address );
 
 			// Add order note.
 			$order->add_order_note(
-				sprintf( __( 'Order submitted, payment for %s ETH requested.', 'woocommerce-gateway-wooreq' ), $total_owed_in_eth )
+				sprintf( __( 'Order submitted, payment for %s %s requested.', 'woocommerce-gateway-wooreq' ), $total_owed, $currency )
 			);
 
 			//wooreq_txid is empty as that is sent back via the signer
@@ -319,9 +380,9 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			$data = array (
 				'order_id' 		=> $order_id,
 				'redirect_url' 	=> $full_callback,
-				'to_pay'		=> $total_owed_in_eth,
-				'to_address'	=> $this->payment_address,
-				'reason'		=> get_site_url() . " order for " . $total_owed_in_eth . " ETH "
+				'to_pay'		=> $total_owed,
+				'to_address'	=> $this->to_address,
+				'reason'		=> get_site_url() . " order for " . $total_owed . ' ' . $currency
 			);
 
 			if ( $this->testmode ) {

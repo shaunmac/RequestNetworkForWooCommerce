@@ -1,0 +1,182 @@
+/*!
+ *  PaymentFont 1.2.5 by @AMPoellmann - http://paymentfont.com
+ *  License - http://paymentfont.io/#license (Font: SIL OFL 1.1, CSS: MIT License)
+ */
+
+@font-face {
+    font-family: PaymentFont;
+
+    src:  url('../paymentfonts/wooreq-payment-font.eot?9dgxrp');
+    src:  url('../paymentfonts/wooreq-payment-font.eot?9dgxrp#iefix') format('embedded-opentype'),
+          url('../paymentfonts/wooreq-payment-font.ttf?9dgxrp') format('truetype'),
+          url('../paymentfonts/wooreq-payment-font.woff?9dgxrp') format('woff'),
+          url('../paymentfonts/wooreq-payment-font.svg?9dgxrp#wooreq-payment') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.wooreq-pf {
+    font-family: 'PaymentFont' !important;
+    display: inline-block;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    font-size: 18px;
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.wooreq-pf-right {
+    float: right
+}
+
+.wooreq-pf-left {
+    float: left
+}
+
+.wooreq-pf-lg {
+    font-size: 1.33333333em;
+    line-height: .75em;
+    vertical-align: -15%
+}
+
+.wooreq-pf-2x {
+    font-size: 2em
+}
+
+.wooreq-pf-3x {
+    font-size: 3em
+}
+
+.wooreq-pf-4x {
+    font-size: 4em
+}
+
+.wooreq-pf-5x {
+    font-size: 5em
+}
+
+.wooreq-pf-eth:before {
+    content: "\e902"
+}
+
+.wooreq-pf-btc:before {
+    content: "\e908"
+}
+
+.wooreq-pf-req:before {
+    content: "\e900"
+}
+
+.wooreq-pf-omg:before {
+    content: "\e900"
+}
+
+.wooreq-pf-knc:before {
+    content: "\e900"
+}
+
+.wooreq-pf-dgx:before {
+    content: "\e900"
+}
+
+.wooreq-pf-dai:before {
+    content: "\e900"
+}
+
+#add_payment_method #payment_method_wooreq {
+    margin: 25px 0 25px 25px;
+}
+
+#add_payment_method .woocommerce-PaymentMethod label {
+    margin-left: 10px;
+}
+
+#add_payment_method .woocommerce-PaymentMethod label .wooreq-pf {
+    margin: 25px 0 0 0;
+}
+
+#add_payment_method .woocommerce-PaymentMethod label .wooreq-pf:first-child {
+    margin-right: 25px;
+}
+
+#add_payment_method li {
+    clear: right;
+}
+
+#add_payment_method #wc-wooreq_sepa-form {
+    padding: 10px;
+}
+
+form#order_review #payment_method_wooreq {
+    margin: 25px 0 25px 25px;
+}
+
+
+form#order_review .payment_methods label {
+    margin-left: 10px;
+}
+
+form#order_review .payment_methods label .wooreq-pf:first-child {
+    margin-right: 25px;
+}
+
+form #payment .payment_method_wooreq .wooreq-pf {
+    margin-left: 8px;
+}
+
+form#order_review li {
+    clear: right;
+}
+
+.icon-omisego .path1:before {
+  content: "\e900";
+  color: rgb(26, 83, 240);
+}
+.icon-omisego .path2:before {
+  content: "\e901";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}
+.icon-ethereum .path1:before {
+  content: "\e902";
+  color: rgb(52, 52, 52);
+}
+.icon-ethereum .path2:before {
+  content: "\e903";
+  margin-left: -0.6142578125em;
+  color: rgb(140, 140, 140);
+}
+.icon-ethereum .path3:before {
+  content: "\e904";
+  margin-left: -0.6142578125em;
+  color: rgb(60, 60, 59);
+}
+.icon-ethereum .path4:before {
+  content: "\e905";
+  margin-left: -0.6142578125em;
+  color: rgb(140, 140, 140);
+}
+.icon-ethereum .path5:before {
+  content: "\e906";
+  margin-left: -0.6142578125em;
+  color: rgb(20, 20, 20);
+}
+.icon-ethereum .path6:before {
+  content: "\e907";
+  margin-left: -0.6142578125em;
+  color: rgb(57, 57, 57);
+}
+.icon-Bitcoin .path1:before {
+  content: "\e908";
+  color: rgb(247, 147, 26);
+}
+.icon-Bitcoin .path2:before {
+  content: "\e909";
+  margin-left: -1em;
+  color: rgb(255, 255, 255);
+}

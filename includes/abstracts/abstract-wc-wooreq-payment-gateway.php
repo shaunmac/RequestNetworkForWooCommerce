@@ -20,7 +20,7 @@ abstract class WC_WooReq_Payment_Gateway extends WC_Payment_Gateway_CC {
 	 */
 	public function is_available() {
 		if ( 'yes' === $this->enabled ) {
-			if ( ! $this->payment_address && is_checkout() && ! is_ssl()) {
+			if ( ! $this->eth_payment_address && ! $this->btc_payment_address && is_checkout() && ! is_ssl()) {
  				
  				try {
 
@@ -63,7 +63,8 @@ abstract class WC_WooReq_Payment_Gateway extends WC_Payment_Gateway_CC {
 	 */
 	public function payment_icons() {
 		return apply_filters( 'wc_wooreq_payment_icons', array(
-			'eth'       => '<i class="wooreq-pf wooreq-pf-eth wooreq-pf-right" alt="Visa" aria-hidden="true"></i>',
+			'eth'       => '<i class="wooreq-pf wooreq-pf-eth wooreq-pf-right" alt="Request Network" aria-hidden="true"></i>',
+			'btc'       => '<i class="wooreq-pf wooreq-pf-btc wooreq-pf-right" alt="Request Network" aria-hidden="true"></i>'
 		) );
 	}
 
