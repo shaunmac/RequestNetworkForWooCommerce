@@ -5,6 +5,7 @@
 * Add - Bitcoin payment option
 * Add - BCMath dependency warning
 * Add - Select2 for the currency multiselect
+* Add - Add order note when the TXID callback is triggered
 * Fix - Admin notices
 * Tweak - Change the default state of the test mode checkbox to unchecked
 

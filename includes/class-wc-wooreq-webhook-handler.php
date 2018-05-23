@@ -27,7 +27,7 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	 * Check incoming requests for WooReq webhook data and process them.
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 */
 	public function wooreq_process_callback( ) {
 
@@ -56,18 +56,19 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 				throw new WC_WooReq_Exception( "Error: is_object( $order ) check failed." );
 			}
 
-			if ( 'processing' === $order->get_status() || 'completed' === $order->get_status() || 'on-hold' === $order->get_status() ) {
-				WC_WooReq_Logger::log( 'Error: get_status check for order failed. Already in process, completed or on-hold.' );
-				wc_add_notice( "It looks like your order is already in process, on-hold or completed.", 'error' );
+			if ( 'processing' === $order->get_status() || 'completed' === $order->get_status() ) {
+				WC_WooReq_Logger::log( 'Error: get_status check for order failed. Already in process or completed.' );
+				wc_add_notice( "It looks like your order is already in process or completed.", 'error' );
 				wp_safe_redirect( wc_get_checkout_url() );
 				return;
 			}
 
 			$txid 				= wc_clean( stripslashes ( $_GET['wooreq_txid'] ) );
-			$total_owed_eth 	= get_post_meta( $order_id, 'total_owed_in_eth_raw', true );
+			$total_owed 		= get_post_meta( $order_id, 'total_owed_raw', true );
+			$currency 			= get_post_meta( $order_id, 'currency', true );
 
 			//Check TXID is valid
-			if ( $this->check_txid( $order_id, $txid, $total_owed_eth ) ) {
+			if ( $this->check_txid( $order_id, $txid, $total_owed ) ) {
 
 				update_post_meta( $order_id, 'txid', $txid );
 
@@ -78,7 +79,7 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 				$order->payment_complete( $order_id );
 
 				// Add to the order note
-				$message = sprintf( __( '%s ETH has been recieved. Transaction ID = %s', 'woocommerce-gateway-wooreq' ), $total_owed_eth, $txid );
+				$message = sprintf( __( '%s %s has been recieved. Transaction ID = %s', 'woocommerce-gateway-wooreq' ), $total_owed, $currency, $txid );
 				$order->add_order_note( $message );
 
 				// Order has been complete - redirect to the thank you page
@@ -115,7 +116,7 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	 * This allows the store owner to manually check the blockchain to process orders. 
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 * @return bool
 	 */
 	public function wooreq_txid_callback( ) {
@@ -137,8 +138,8 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 				exit;
 			}
 
-			if ( 'processing' === $order->get_status() || 'completed' === $order->get_status() || 'on-hold' === $order->get_status() ) {
-				WC_WooReq_Logger::log( 'Error: get_status check for in order failed. Already in process, completed or on-hold. TXID Callback' );
+			if ( 'processing' === $order->get_status() || 'completed' === $order->get_status() ) {
+				WC_WooReq_Logger::log( 'Error: get_status check for in order failed. Already in process or completed. TXID Callback' );
 				wp_send_json_error( );
 				exit;
 			}
@@ -148,6 +149,13 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 			if ( !empty( $txid ) ) {
 
 				update_post_meta( $order_id, 'txid', $txid );
+
+				/*
+				* Update the order to on-hold, this is to stop the 'hold-stock' automated WooCommerce call from triggering the auto cancellation. 
+				* This is needed for when the blockchain is congested and transactions can take a long time to get confirmed.
+				*/ 
+				$order->update_status( 'on-hold', sprintf( __( 'Payment has been submitted, the TXID for this payment is: %s.', 'woocommerce-gateway-wooreq' ), $txid ) );
+
 				wp_send_json_success( );
 				exit;
 			} 

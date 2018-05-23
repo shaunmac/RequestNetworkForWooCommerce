@@ -85,7 +85,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 * Adds the cryptocurrency information to the confirmation email
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 */
 	public function wooreq_email_order_meta_fields( $fields, $sent_to_admin, $order ) {
 		
@@ -96,7 +96,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 
 		$currency = get_post_meta( $order->get_id(), 'currency', true );
 
-		// Total ETH paid
+		// Total paid
 	    $fields['paid'] = array(
 	        'label' => __( $currency . ' Paid' ),
 	        'value' => get_post_meta( $order->get_id(), 'total_owed_raw', true ) . ' ' . $currency,
@@ -158,11 +158,6 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 
 		$icons_str .= $icons['eth'];
 		$icons_str .= $icons['btc'];
-		$icons_str .= $icons['req'];
-		$icons_str .= $icons['omg'];
-		$icons_str .= $icons['knc'];
-		$icons_str .= $icons['gdx'];
-		$icons_str .= $icons['dai'];
 
 		return apply_filters( 'woocommerce_gateway_icon', $icons_str, $this->id );
 	}
@@ -210,17 +205,6 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 		?>
 
 		<div id="wooreq-payment">
-			<select name="payment_currency" id="payment_currency">
-				<?php
-					foreach ($this->accepted_currencies as $key => $value) {
-						if ( $value == $payment_currency ) {
-							echo "<option selected value={$value}>{$value}</option>";
-						} else {
-							echo "<option value={$value}>{$value}</option>";
-						}			
-					}
-				?>
-			</select>
 			<p>Total to pay in <?= $payment_currency ?>: <b> <?= $total_owed_crypto ?></b></p>
 			<p>Current rate: <b> <?= $current_exchange_rate ?> <?= $payment_currency ?> / <?= get_woocommerce_currency() ?></b></p>
 			
@@ -246,7 +230,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 				echo apply_filters( 'wc_wooreq_description', wpautop( wp_kses_post( $this->description ) ) );
 			}
 
-			$this->pay_with_request();
+			$this->pay_with_request( $payment_currency );
 
 			?>
 			<div class="wooreq-errors" role="alert"></div>
@@ -259,13 +243,47 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 * Renders the WooReq button.
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 */
-	public function pay_with_request() {
+	public function pay_with_request( $payment_currency ) {
+
+			$filtered_accepted_currencies = WooReq_Helper::get_accepted_currencies( $this->accepted_currencies );
+
+			$has_multiple_payment_options = ( count ( $filtered_accepted_currencies ) > 1 );
 		?>
 
 		<fieldset id="wc-<?php echo esc_attr( $this->id ); ?>-form" style="background:transparent;">
-			<button id="request-payment-button">Pay with Request</button>
+			<div class="button-dropdown-container">
+				<button id="request-payment-button">
+					<i class="payment-icon payment-icon--req-large"></i>
+					<span>Pay with Request</span> 
+				</button>
+
+				<?php
+
+					if ( $has_multiple_payment_options ) {
+						?>
+							<div class="payment-button-dropdown-icon-container">
+								<i class="payment-button-dropdown-icon"></i>
+							</div>
+						<?php
+					}
+
+				?>
+
+				<select name="payment_currency" id="payment_currency">
+					<?php
+						foreach ( $filtered_accepted_currencies as $key => $value ) {
+
+							if ( $key == $payment_currency ) {
+								echo "<option selected value={$key}>{$value}</option>";
+							} else {
+								echo "<option value={$key}>{$value}</option>";
+							}			
+						}
+					?>
+				</select>
+			</div>
 		</fieldset>
 
 		<?php
@@ -290,7 +308,6 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 		wp_register_style( 'wooreq_css', plugins_url( 'assets/css/wooreq.css', WC_WOOREQ_MAIN_FILE ), array(), '0.1.0' );
 		wp_enqueue_style( 'wooreq_css' );
 
-		wp_enqueue_script( 'woocommerce_wooreq_checkout_select', plugins_url( 'assets/js/select2.min.js', WC_WOOREQ_MAIN_FILE ), array(), WC_WOOREQ_VERSION, true );
 		wp_enqueue_script( 'woocommerce_wooreq_checkout', plugins_url( 'assets/js/checkout.js', WC_WOOREQ_MAIN_FILE ), array(), WC_WOOREQ_VERSION, true );
 
 		if ( isset( $_GET['pay_for_order'] ) && 'true' === $_GET['pay_for_order'] ) {
@@ -322,7 +339,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 * Process the payment
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 * @param int  $order_id Reference.
 	 * @param bool $retry Should we retry on fail.
 	 *
@@ -381,7 +398,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 				'order_id' 		=> $order_id,
 				'redirect_url' 	=> $full_callback,
 				'to_pay'		=> $total_owed,
-				'to_address'	=> $this->to_address,
+				'to_address'	=> $to_address,
 				'reason'		=> get_site_url() . " order for " . $total_owed . ' ' . $currency
 			);
 
@@ -406,6 +423,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			);
 
 			$context  = stream_context_create($options);
+
 			$result = file_get_contents($url, false, $context);
 
 			// Send off to the Request App for payment
@@ -435,7 +453,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 * Displays the order confirmation page
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 * @param int  $order_id Reference.
 	 *
 	 *
@@ -450,11 +468,12 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 
 		$order       = new WC_Order( $order_id );
 
-		$eth_value 				= get_post_meta( $order_id, 'eth_value', true );
-		$total_owed_in_eth 		= get_post_meta( $order_id, 'total_owed_in_eth', true );
-		$eth_conversion_time 	= get_post_meta( $order_id, 'eth_conversion_time', true );
+		$currency 				= get_post_meta( $order_id, 'currency', true );
+		$value 					= get_post_meta( $order_id, 'value', true );
+		$total_owed 			= get_post_meta( $order_id, 'total_owed', true );
+		$conversion_time 	= get_post_meta( $order_id, 'conversion_time', true );
 		$txid 					= get_post_meta( $order_id, 'txid', true );
-	
+
 		?>
 
 		<h2 style="text-align: center;">Pay with Request details</h2>
@@ -462,11 +481,11 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 		<ul class="woocommerce-order-overview woocommerce-thankyou-order-details order_details">
 
 				<li class="woocommerce-order-overview__date date">
-					Total Sent in ETH:					<strong><?= $total_owed_in_eth ?></strong>
+					Total Sent in <?= $currency ?>:					<strong><?= $total_owed ?></strong>
 				</li>
 
 				<li class="woocommerce-order-overview__email email">
-					ETH Conversion Rate:				<strong><?= $eth_value ?></strong>
+				<?= $currency ?> Conversion Rate:				<strong><?= $value ?></strong>
 				</li>
 
 				<?php 
@@ -486,7 +505,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 				</li>
 				
 				<li class="woocommerce-order-overview__total total">
-					ETH Conversion Time:				<strong><?= $eth_conversion_time ?></strong>
+					<?= $currency ?> Conversion Time:				<strong><?= $conversion_time ?></strong>
 				</li>
 				
 			</ul>

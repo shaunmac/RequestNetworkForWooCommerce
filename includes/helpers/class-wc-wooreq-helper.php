@@ -55,10 +55,10 @@ class WooReq_Helper {
 	}
 
 	/**
-	 * Gets the current crypto conversion rate from cryptocompare. get_woocommerce_currency()
+	 * Gets the current crypto conversion rate from cryptocompare or coinmarketcap. get_woocommerce_currency()
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 * @return float
 	 */
 	public static function get_crypto_rate( $base_currency = '', $crypto_currency = 'ETH' ) {
@@ -74,24 +74,79 @@ class WooReq_Helper {
 			return (float) $rate;
 		}
 
-		$response = wp_remote_get( 'https://min-api.cryptocompare.com/data/price?fsym=' . $base_currency . '&tsyms=' . $crypto_currency );
-		if ( is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
-			WC_WooReq_Logger::log( sprintf( __( 'Error: could not get price from cryptocompare. BaseCurrency: %s, CryptoCurrency %s.', 'woocommerce-gateway-wooreq' ), $base_currency, $crypto_currency ) );
-			throw new WC_WooReq_Exception( "Error: is_object( $order ) check failed." );			
+		if ( $crypto_currency == 'DGX' ) {
+
+			$response = wp_remote_get( 'https://api.coinmarketcap.com/v2/ticker/2739/?convert=' . $base_currency );			
+
+			if ( is_wp_error( $response ) ) {
+				WC_WooReq_Logger::log( sprintf( __( 'Error: could not get price from coinmarketcap. BaseCurrency: %s, CryptoCurrency %s.', 'woocommerce-gateway-wooreq' ), $base_currency, $crypto_currency ) );
+				throw new WC_WooReq_Exception( "Error: price check failed ( $response ) in get_crypto_rate" );		
+			}
+			$body = json_decode( $response['body'] );
+			if ( json_last_error() !== JSON_ERROR_NONE || $body->metadata->error != null ) {
+				WC_WooReq_Logger::log( sprintf( __( 'Error: Error returned from the Coinmarketcap API - %s. JSON error.', 'woocommerce-gateway-wooreq' ), $body ) );
+				throw new WC_WooReq_Exception( "Error: Error returned from the Coinmarketcap API ( $body ) in get_crypto_rate" );		
+			}
+
+			if ( !isset( $body->data->quotes->$base_currency ) ) {
+				WC_WooReq_Logger::log( sprintf( __( 'Error: Currency not supported by the Coinmarketcap API - %s.', 'woocommerce-gateway-wooreq' ), $body ) );
+				throw new WC_WooReq_Exception( "Error: Currency not supported by the Coinmarketcap API ( $body ) in get_crypto_rate" );		
+			}
+
+			$price_per_amount = (float) round( 1 / $body->data->quotes->$base_currency->price, 6 );
+
+			set_transient( $transient_key, $price_per_amount, 300 );
+
+			return (float) $price_per_amount;
+
+		} else {
+			$response = wp_remote_get( 'https://min-api.cryptocompare.com/data/price?fsym=' . $base_currency . '&tsyms=' . $crypto_currency );
+			if ( is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
+				WC_WooReq_Logger::log( sprintf( __( 'Error: could not get price from cryptocompare. BaseCurrency: %s, CryptoCurrency %s.', 'woocommerce-gateway-wooreq' ), $base_currency, $crypto_currency ) );
+				throw new WC_WooReq_Exception( "Error: price check failed ( $response ) in get_crypto_rate" );			
+			}
+			$body = json_decode( $response['body'] );
+			if ( json_last_error() !== JSON_ERROR_NONE ) {
+				WC_WooReq_Logger::log( sprintf( __( 'Error: Could not convert %s. JSON error.', 'woocommerce-gateway-wooreq' ), $crypto_currency ) );
+				throw new WC_WooReq_Exception( "Error: JSON Decode failed ( $body ) in get_crypto_rate" );		
+			}
+			if ( ! isset( $body->$crypto_currency ) ) {
+				WC_WooReq_Logger::log( sprintf( __( 'Error: Could not convert %s. missing value after decoding.', 'woocommerce-gateway-wooreq' ), $crypto_currency ) );
+				throw new WC_WooReq_Exception( "Error: Price conversion failed ( $body ) in get_crypto_rate" );		
+			}
+			
+			$rounded = round( $body->$crypto_currency, 6 );
+
+			set_transient( $transient_key, $body->$crypto_currency, 300 );
+			
+			return (float) $body->$crypto_currency;
 		}
-		$body = json_decode( $response['body'] );
-		if ( json_last_error() !== JSON_ERROR_NONE ) {
-			WC_WooReq_Logger::log( sprintf( __( 'Error: Could not convert %s. JSON error.', 'woocommerce-gateway-wooreq' ), $crypto_currency ) );
-			throw new WC_WooReq_Exception( "Error: is_object( $order ) check failed." );	
-		}
-		if ( ! isset( $body->$crypto_currency ) ) {
-			WC_WooReq_Logger::log( sprintf( __( 'Error: Could not convert %s. missing value after decoding.', 'woocommerce-gateway-wooreq' ), $crypto_currency ) );
-			throw new WC_WooReq_Exception( "Error: is_object( $order ) check failed." );	
+	}
+
+	/**
+	 * Returns a list of accepted currencies on the site.
+	 *
+	 * @since 0.1.2
+	 * @version 0.1.2
+	 * @return array
+	 */
+	public static function get_accepted_currencies( $filter = null ) {
+
+		$all_currencies = array(
+	        'ETH' => __( 'Ethereum (ETH)', 'woocommerce-gateway-wooreq' ),
+	        'BTC' => __( 'Bitcoin (BTC)', 'woocommerce-gateway-wooreq' ),
+	        'OMG' => __( 'OmiseGO (OMG)', 'woocommerce-gateway-wooreq' ),
+	        'REQ' => __( 'Request Network (REQ)', 'woocommerce-gateway-wooreq' ),
+	        'KNC' => __( 'Kyber Network (KNC)', 'woocommerce-gateway-wooreq' ),
+	        'DAI' => __( 'Dai (DAI)', 'woocommerce-gateway-wooreq' ),
+	        'DGX' => __( 'Digix Gold (DGX)', 'woocommerce-gateway-wooreq' )
+		);
+
+		if ( $filter ) {
+			return array_flip( array_intersect( array_flip( $all_currencies ), $filter ) );
 		}
 
-		set_transient( $transient_key, $body->$crypto_currency, 300 );
-
-		return (float) $body->$crypto_currency;
+		return $all_currencies;
 	}
 
 	/**
