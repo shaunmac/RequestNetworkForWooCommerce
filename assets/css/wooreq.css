@@ -1,17 +1,338 @@
-#request-payment-button {
-	cursor: pointer;
-	display: block;
-    padding-top: 22px !important;
-    padding-bottom: 21px !important;
-    background-color: #5a89f9;
-    background-image: linear-gradient(90deg,#6cfdcc,transparent)!important;
-    color: #fff;
-    width: 100%;
-    font-size: 16px;
-    font-size: 16px;
-    font-weight: bold;
+@font-face {
+    font-family: Roboto;
+    src:  url('../fonts/Roboto-Regular.ttf') format('truetype');
 }
 
+
+.payment-icon {
+    background-image: url('../images/payment-icons.png');
+    background-repeat: no-repeat;
+    display: inline-block;
+}
+.payment-icon--btc {
+    width: 32px;
+    height: 32px;
+    background-position: -5px -5px;
+}
+.payment-icon--dai {
+    width: 32px;
+    height: 32px;
+    background-position: -47px -5px;
+}
+.payment-icon--dgx {
+    width: 32px;
+    height: 32px;
+    background-position: -5px -47px;
+}
+.payment-icon--eth {
+    width: 32px;
+    height: 32px;
+    background-position: -47px -47px;
+}
+.payment-icon--knc {
+    width: 32px;
+    height: 32px;
+    background-position: -89px -5px;
+}
+.payment-icon--omg {
+    width: 32px;
+    height: 32px;
+    background-position: -89px -47px;
+}
+.payment-icon--req {
+    width: 32px;
+    height: 32px;
+    background-position: -5px -89px;
+}
+.payment-icon--req-large {
+    width: 28px;
+    height: 40px;
+    background-position: -47px -89px;
+}
+.button-dropdown-container {
+    position: relative;
+}
+#request-payment-button {
+    font-family: 'Roboto', sans-serif;
+    z-index: 11;
+    position: relative;
+    cursor: pointer;
+    display: block;
+    background-color: #103b56;
+    color: #fff;
+    width: 100%;
+    max-width: 520px;
+    height: 72px;
+    line-height: 72px;
+    padding-left: 72px;
+    padding-right: 42px;
+}
+#request-payment-button.active {
+    -webkit-box-shadow: 0 0px 70px -20px rgba(0,0,0,.6);
+    -moz-box-shadow: 0 0px 70px -20px rgba(0,0,0,.6);
+    box-shadow: 0 0px 70px -20px rgba(0,0,0,.6);
+}
+#request-payment-button span {
+    font-size: 18px;
+    text-transform: none;
+    margin-left: -12px;
+}
+#request-payment-button::before {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 100%;
+    background: #34506e;
+    left: 72px;
+    top: 0;
+}
+#request-payment-button .payment-icon {
+    position: absolute;
+    left: 22px;
+    top: 16px;
+}
+.payment-button-dropdown-icon-container {
+    z-index: 11;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 62px;
+    cursor: pointer;
+}
+.payment-button-dropdown-icon {
+    cursor: pointer;
+    position: absolute;
+    right: 32px;
+    top: 44px;
+    width: 18px;
+    height: 10px;
+    zoom: 75%;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAKCAYAAAC5Sw6hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAFwmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDIgNzkuMTYwOTI0LCAyMDE3LzA3LzEzLTAxOjA2OjM5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgKFdpbmRvd3MpIiB4bXA6Q3JlYXRlRGF0ZT0iMjAxOC0wNS0yMVQxMToyNjozNSswMTowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAxOC0wNS0yMVQxMToyNjozNSswMTowMCIgeG1wOk1vZGlmeURhdGU9IjIwMTgtMDUtMjFUMTE6MjY6MzUrMDE6MDAiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6YmY0MWYwOGQtZTQzYy0wMzRlLThiYzMtNzhjMjUwMTUxNjUxIiB4bXBNTTpEb2N1bWVudElEPSJhZG9iZTpkb2NpZDpwaG90b3Nob3A6MmIwMTE3MDktNzk5My01MDQwLWI3ZWItOTBhZGJiN2I0MzlmIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6YTFlZTJlMjQtMmE3Mi1iOTQ3LWI1MzUtZDJiOTMwZGQ0ZTRhIiBkYzpmb3JtYXQ9ImltYWdlL3BuZyIgcGhvdG9zaG9wOkNvbG9yTW9kZT0iMyI+IDx4bXBNTTpIaXN0b3J5PiA8cmRmOlNlcT4gPHJkZjpsaSBzdEV2dDphY3Rpb249ImNyZWF0ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6YTFlZTJlMjQtMmE3Mi1iOTQ3LWI1MzUtZDJiOTMwZGQ0ZTRhIiBzdEV2dDp3aGVuPSIyMDE4LTA1LTIxVDExOjI2OjM1KzAxOjAwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgQ0MgKFdpbmRvd3MpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpiZjQxZjA4ZC1lNDNjLTAzNGUtOGJjMy03OGMyNTAxNTE2NTEiIHN0RXZ0OndoZW49IjIwMTgtMDUtMjFUMTE6MjY6MzUrMDE6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAoV2luZG93cykiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+nxHoLwAAAYdJREFUKJGd0M9qE1EUBvAvM/fOnUkiktSA0IJLBSkuAnaTYhZNlgVBXLlwX/oCfQMfQIIouBArioqLpqQmtKC2nSzKOFXzj6SJQUxMEJHIJJkk97gQRWOLpt/2O/wO53hu3Lp/9mL4wrLjOCEPPF1MEMZU3h+4MO3CHRYMnLgWDZ9fmgQYz3RoKqi8tHKJerNtHRdpf/lat0vVFfXc3KVOrfF5NXjSHzl9KnBmEqTebJc2s3bsm+PkFZ+hg6lq5/bTVCz7prj+v8jbyvt3adOKGrp2oGkcChHBawhwxvp3n6Uvm/vF5L+Qcr1h33ywtuAOhg2foYOIoAAASYLP0KFp3L2X3Lqyly9njkJqHz/ZadOKq6rS9Bs6pCQA+AEBgJQErxDQBe892ni1aOUr6UN+sr/9OhfnTG0ZQoCIfnXK74OSCIbQ4BW8+zD1Ir5j5x//7ArVD+auXYhwxloaZ38gAMDGt0oiCKFBVRQ8yWxfdd1RQsrRzPPdvevz4dnOYDBEt+f+dfJ3oPehf+dxk5kAAAAASUVORK5CYII=');
+}
+#request-payment-button .select2-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100%;
+}
 #wc-wooreq-form {
-	border: 0 !important;
+    border: 0 !important;
+}
+#payment_currency {
+    display: none;
+}
+/* Selectric */
+
+/*====================================== Selectric v1.13.0 ======================================*/
+
+.selectric-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+.selectric-responsive {
+    width: 100%;
+}
+.selectric {
+    background: #F8F8F8;
+    position: relative;
+    overflow: hidden;
+    height: 72px;
+    z-index: 5;
+}
+.selectric .label {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 38px 0 10px;
+    font-size: 12px;
+    line-height: 38px;
+    color: #444;
+    height: 100%;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.selectric .button {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 38px;
+    height: 38px;
+    line-height: 38px;
+    background-color: #F8f8f8;
+    color: #BBB;
+    text-align: center;
+    font: 0/0 a;
+    *font: 20px/38px Lucida Sans Unicode, Arial Unicode MS, Arial;
+}
+.selectric .button:after {
+    content: " ";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    width: 0;
+    height: 0;
+}
+.selectric-items.open {
+    z-index: 9;
+    display: block;
+}
+.selectric-disabled {
+    filter: alpha(opacity=50);
+    opacity: 0.5;
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.selectric-hide-select {
+    position: relative;
+    overflow: hidden;
+    width: 0;
+    height: 0;
+}
+.selectric-hide-select select {
+    position: absolute;
+    left: -100%;
+}
+.selectric-hide-select.selectric-is-native {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+}
+.selectric-hide-select.selectric-is-native select {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    box-sizing: border-box;
+    opacity: 0;
+}
+.selectric-input {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    outline: none !important;
+    *font: 0/0 a !important;
+    background: none !important;
+}
+.selectric-temp-show {
+    position: absolute !important;
+    visibility: hidden !important;
+    display: block !important;
+}
+/* Items box */
+
+.selectric-items {
+    display: none;
+    position: absolute;
+    width: 100%;
+    top: 100%;
+    left: 0;
+    background: #fff;
+    z-index: -1;
+    -webkit-box-shadow: 0 0px 40px 0px rgba(0,0,0,.2);
+       -moz-box-shadow: 0 0px 40px 0px rgba(0,0,0,.2);
+            box-shadow: 0 0px 40px 0px rgba(0,0,0,.2);
+    padding: 14px;
+}
+.selectric-items .selectric-scroll {
+    height: 100%;
+    overflow: auto;
+}
+.selectric-above .selectric-items {
+    top: auto;
+    bottom: 100%;
+}
+.selectric-items ul,
+.selectric-items li {
+    list-style: none;
+    padding: 0 !important;
+    margin: 0;
+    font-size: 12px;
+    line-height: 20px;
+    min-height: 20px;
+    border: 0 !important;
+}
+.selectric-items li {
+    display: block;
+    color: #666;
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 6px !important;
+    margin-bottom: 6px !important;
+    line-height: 37px;
+    font-size: 16px;
+    font-family: 'Roboto', sans-serif;
+}
+.selectric-items li span {
+    position: relative;
+    top: -5px;
+    color: #314d6b;
+}
+.selectric-items li:last-of-type {
+    margin-bottom: 0 !important;
+}
+.selectric-items li .payment-icon {
+    margin-right: 18px;
+    zoom: 72%;
+    backface-visibility: hidden;
+}
+.selectric-items li.selected {
+    background: #e5f3ff !important;
+    color: #444;
+}
+.selectric-items li:hover {
+    background: #f7fbff;
+    color: #444;
+}
+.selectric-items .disabled {
+    filter: alpha(opacity=50);
+    opacity: 0.5;
+    cursor: default !important;
+    background: none !important;
+    color: #666 !important;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.selectric-items .selectric-group .selectric-group-label {
+    font-weight: bold;
+    padding-left: 10px;
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background: none;
+    color: #444;
+}
+.selectric-items .selectric-group.disabled li {
+    filter: alpha(opacity=100);
+    opacity: 1;
+}
+.selectric-items .selectric-group li {
+    padding-left: 25px;
 }

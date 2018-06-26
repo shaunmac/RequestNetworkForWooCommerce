@@ -17,5 +17,8 @@ if ( defined( 'WC_REMOVE_ALL_DATA' ) && true === WC_REMOVE_ALL_DATA ) {
 	// Delete options.
 	delete_option( 'woocommerce_wooreq_settings' );
 	delete_option( 'wc_wooreq_show_ssl_notice' );
+	delete_option( 'wc_wooreq_show_eth_address_notice' );
+	delete_option( 'wc_wooreq_show_btc_address_notice' );
+	delete_option( 'wc_wooreq_show_empty_currencies_notice' );
 	delete_option( 'wc_wooreq_version' );
 }

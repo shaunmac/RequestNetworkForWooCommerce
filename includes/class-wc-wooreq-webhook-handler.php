@@ -27,7 +27,7 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	 * Check incoming requests for WooReq webhook data and process them.
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 */
 	public function wooreq_process_callback( ) {
 
@@ -56,18 +56,22 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 				throw new WC_WooReq_Exception( "Error: is_object( $order ) check failed." );
 			}
 
-			if ( 'processing' === $order->get_status() || 'completed' === $order->get_status() || 'on-hold' === $order->get_status() ) {
-				WC_WooReq_Logger::log( 'Error: get_status check for order failed. Already in process, completed or on-hold.' );
-				wc_add_notice( "It looks like your order is already in process, on-hold or completed.", 'error' );
+			if ( 'processing' === $order->get_status() || 'completed' === $order->get_status() ) {
+				WC_WooReq_Logger::log( 'Error: get_status check for order failed. Already in process or completed.' );
+				wc_add_notice( "It looks like your order is already in process or completed.", 'error' );
 				wp_safe_redirect( wc_get_checkout_url() );
 				return;
 			}
 
 			$txid 				= wc_clean( stripslashes ( $_GET['wooreq_txid'] ) );
-			$total_owed_eth 	= get_post_meta( $order_id, 'total_owed_in_eth_raw', true );
+			$total_owed 		= get_post_meta( $order_id, 'total_owed_raw', true );
+			$network 			= get_post_meta( $order_id, 'network', true );
+			$currency 			= get_post_meta( $order_id, 'currency', true );
+
+			$is_valid = $this->check_txid( $order_id, $txid, $total_owed, $network );
 
 			//Check TXID is valid
-			if ( $this->check_txid( $order_id, $txid, $total_owed_eth ) ) {
+			if ( $is_valid ) {
 
 				update_post_meta( $order_id, 'txid', $txid );
 
@@ -78,7 +82,7 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 				$order->payment_complete( $order_id );
 
 				// Add to the order note
-				$message = sprintf( __( '%s ETH has been recieved. Transaction ID = %s', 'woocommerce-gateway-wooreq' ), $total_owed_eth, $txid );
+				$message = sprintf( __( '%s %s has been recieved. Transaction ID = %s', 'woocommerce-gateway-wooreq' ), $total_owed, $currency, $txid );
 				$order->add_order_note( $message );
 
 				// Order has been complete - redirect to the thank you page
@@ -115,7 +119,7 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	 * This allows the store owner to manually check the blockchain to process orders. 
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 * @return bool
 	 */
 	public function wooreq_txid_callback( ) {
@@ -137,8 +141,8 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 				exit;
 			}
 
-			if ( 'processing' === $order->get_status() || 'completed' === $order->get_status() || 'on-hold' === $order->get_status() ) {
-				WC_WooReq_Logger::log( 'Error: get_status check for in order failed. Already in process, completed or on-hold. TXID Callback' );
+			if ( 'processing' === $order->get_status() || 'completed' === $order->get_status() ) {
+				WC_WooReq_Logger::log( 'Error: get_status check for in order failed. Already in process or completed. TXID Callback' );
 				wp_send_json_error( );
 				exit;
 			}
@@ -148,6 +152,13 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 			if ( !empty( $txid ) ) {
 
 				update_post_meta( $order_id, 'txid', $txid );
+
+				/*
+				* Update the order to on-hold, this is to stop the 'hold-stock' automated WooCommerce call from triggering the auto cancellation. 
+				* This is needed for when the blockchain is congested and transactions can take a long time to get confirmed.
+				*/ 
+				$order->update_status( 'on-hold', sprintf( __( 'Payment has been submitted, the TXID for this payment is: %s.', 'woocommerce-gateway-wooreq' ), $txid ) );
+
 				wp_send_json_success( );
 				exit;
 			} 
@@ -167,49 +178,56 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	}
 
 	/**
-	 * Validates the incoming transaction ID, checks if it's mined, the recieving address and the amounts.
+	 * Validates the incoming transaction ID, checks if it's mined, the receiving address and the amounts.
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 * @return bool
 	 */
-	private function check_txid( $order_id, $txid, $expected_amount ) {
+	private function check_txid( $order_id, $txid, $expected_amount, $network ) {
 
 		try {
 
-			$ch = curl_init();
-
-			$network = get_post_meta( $order_id, 'network', true );
-			$network_url = "mainnet";
-
-			if ( !empty( $network ) ) {
-				$network_url = $network;
+			// If we are on Rinkeby there is no need to validate
+			if ( $network == "rinkeby" ) {
+				return true;
 			}
 
-			//Construct the URL - we will get the transaction by it's hash and check client side.
-			$api_call_url = sprintf( __( 'https://api.infura.io/v1/jsonrpc/%s/eth_getTransactionByHash?params=["%s"]', 'woocommerce-gateway-wooreq' ), $network_url, $txid );
+			$url = "https://sign.wooreq.com/checktxid";
 
-			curl_setopt($ch, CURLOPT_URL, $api_call_url);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-			curl_setopt($ch, CURLOPT_HEADER, FALSE);
+			$data = array (
+				'txid' 			=> $txid
+			);
 
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-			  "Content-Type: application/json",
-			  "Accept: application/json"
-			));
+			$options = array(
+			    'http' => array(
+    				'header'=>  "Content-Type: application/json\r\n" .
+                				"Accept: application/json\r\n",
+			        'method'  => 'POST',
+			        'content' => json_encode( $data )
+			    )
+			);
 
-			$response = curl_exec($ch);
-			curl_close($ch);
+			$context  = stream_context_create( $options );
 
-			if ( !$response ) {
+			$result = file_get_contents( $url, false, $context );
+
+			if ( !$result ) {
 				return false;
 			}
 
+			$ch = curl_init();
+
 			//Check the value sent, from address and to address. 
-			$json_response = json_decode( $response );
+			$json_response = json_decode( $result );
+
+			// Transaction hasn't been mined.
+			if ( empty ( $json_response->transaction ) ) {
+				return false;
+			}
 
 			//Check the 'from' address - we need to store this address to use for refunds later
-			$from_address = $json_response->result->from;
+			$from_address = $json_response->transaction->from;
 
 			// We don't return false here as it's not absolutely critical for the order. TXID can be checked on-chain.
 			if ( $from_address && WooReq_Helper::is_valid_address( $from_address ) ) {
@@ -219,48 +237,34 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 			}
 
 			/*
-			* As the transaction goes through the smart contract we can't just check the 'to' address
-			* Instead, we must check the address is in the input data on the chain (less the 0x)
+			* Check the Requests 'payee' address to ensure it's correct
 			*/
-			$input_data_chain = $json_response->result->input; 
+			$to_address_request = $json_response->transaction->method->parameters->_payeesPaymentAddress[0]; 
 			$to_address_order = get_post_meta( $order_id, 'to_address', true );
 
-			if ( empty ( $to_address_order ) ) {
+			if ( empty( $to_address_order ) ) {
 				WC_WooReq_Logger::log( sprintf( __( 'Error: empty ( $to_address_order ) check failed. %s', 'woocommerce-gateway-wooreq' ), $to_address_order ) );
 				return false;
 			}
 
-			$to_address_formatted = WooReq_Helper::remove_hex_prefix( $to_address_order );		
-
-
 			//Check if the input data contains the to_address (store owners address)
-			if ( strpos( strtolower ( $input_data_chain ), strtolower ( $to_address_formatted ) ) !== false ) {
+			if ( strtolower( $to_address_request ) == strtolower ( $to_address_order ) ) {
 
 				//Finally, check the value
-				$value = $json_response->result->value;
+				$value = $json_response->transaction->method->parameters->_payeeAmounts[0];
 
 				if ( $value ) {
 
-					$dec_value = WooReq_Helper::bchexdec( $value );	
-
-					//Check if the transaction has been mined + also is the correct amount
-					if ( $this->is_mined( $network_url, $txid ) ) {
-						if ( $this->is_correct_amount( $dec_value, $expected_amount ) ) {
-							//All checks have passed successfully
-							return true;
-						}
-						else {
-							return false;
-						}
+					if ( $this->is_correct_amount( $value, $expected_amount ) ) {
+						//All checks have passed successfully
+						return true;
 					}
 					else {
-
-						WC_WooReq_Logger::log( sprintf( __( 'Error: is_mined( $order ) check failed. %s', 'woocommerce-gateway-wooreq' ), $from_address ) );
+						WC_WooReq_Logger::log( sprintf( __( 'Error: is_correct_amount( $order ) check failed. %s', 'woocommerce-gateway-wooreq' ), $dec_value ) );
 						return false;
-						
 					}		
 				}
-				return true;
+				return false;
 			}
 			else {
 				WC_WooReq_Logger::log( sprintf( __( 'Error: to_address( $order ) check failed. %s, address: %s', 'woocommerce-gateway-wooreq' ), $input_data_chain, $from_address ) );
@@ -288,17 +292,17 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 
 		$ch = curl_init();
 
-		curl_setopt($ch, CURLOPT_URL, $api_call_url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($ch, CURLOPT_HEADER, FALSE);
+		curl_setopt( $ch, CURLOPT_URL, $api_call_url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, TRUE );
+		curl_setopt( $ch, CURLOPT_HEADER, FALSE );
 
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, array(
 		  "Content-Type: application/json",
 		  "Accept: application/json"
-		));
+		) );
 
-		$response = curl_exec($ch);
-		curl_close($ch);
+		$response = curl_exec( $ch );
+		curl_close( $ch );
 
 		if ( !$response ) {
 			return false;
@@ -318,7 +322,7 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	 * Checks the amount sent in the transaction - we have to consider the REQ fee too.
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 * @return bool
 	 */
 	private function is_correct_amount( $value_sent, $expected_amount ) {
@@ -327,11 +331,11 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 		$pad_amount = 22;
 		// Add some 
 		$dust_amount = 0.00000000000000001;
-		$normalised_sent = str_pad ( bcdiv( $value_sent, '1000000000000000000', 18 ), $pad_amount, '0' );
+		$normalised_sent = str_pad ( ceil ( bcdiv( $value_sent, '1000000000000000000', 18 ) ), $pad_amount, '0' );
 
-		$upper_bound_calc = ($expected_amount * 1.001) + $dust_amount;
+		$upper_bound_calc = ceil ( $expected_amount * 1.001 ) + $dust_amount;
 		//The TXID doesn't include the REQ fee so we must account for the bounds
-		$upper_bound = ( str_pad ( $upper_bound_calc, $pad_amount, '0' ) );
+		$upper_bound = str_pad ( $upper_bound_calc, $pad_amount, '0' );
 		$lower_bound = str_pad ( $expected_amount, $pad_amount, '0' );
 
 		if ( $normalised_sent >= $lower_bound && $normalised_sent <= $upper_bound ) {

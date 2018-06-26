@@ -21,7 +21,7 @@ The manual installation method involves downloading the plugin and uploading it 
 ## Features
 
 * Allow customers to pay with Metamask or their Ledger Nano S hardware wallet.
-* Accept payments in ETH. ERC20 + Bitcoin support will be added shortly.
+* Accept payments in ETH and ERC20 tokens (REQ, DAI, KNC, OMG, DGX). Bitcoin support coming soon.
 * 100% free, no setup fees, no monthly fees and no hidden costs. 
 * Quick and easy installation. 
 * Real-time currency exchange rates with support for multiple currencies. 
@@ -79,9 +79,9 @@ No, the plugin will be 100% free — no profit will be taken by me or the Re
 
 No, although it is HIGHLY recommended you use SSL when handling any sensitive customer data.
 
-### Will ERC20 tokens be accepted in the future? ###
+### Will more ERC20 tokens be added in the future? ###
 
-Yes, any payment that is accepted by the Request Network will work with the WooCommerce plugin — the code is written in a very generic way which means adding new currencies is incredibly straight forward.
+Yes, we will slowly be adding more ERC20 tokens in the future.
 
 ### Does this support both mainnet and testnet for testing? ###
 
