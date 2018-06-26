@@ -134,7 +134,7 @@ class WooReq_Helper {
 
 		$all_currencies = array(
 	        'ETH' => __( 'Ethereum (ETH)', 'woocommerce-gateway-wooreq' ),
-	        'BTC' => __( 'Bitcoin (BTC)', 'woocommerce-gateway-wooreq' ),
+	        // 'BTC' => __( 'Bitcoin (BTC)', 'woocommerce-gateway-wooreq' ),
 	        'OMG' => __( 'OmiseGO (OMG)', 'woocommerce-gateway-wooreq' ),
 	        'REQ' => __( 'Request Network (REQ)', 'woocommerce-gateway-wooreq' ),
 	        'KNC' => __( 'Kyber Network (KNC)', 'woocommerce-gateway-wooreq' ),
@@ -153,11 +153,11 @@ class WooReq_Helper {
 	 * Gets the amount the customer owns in crypto
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.0
+	 * @version 0.1.2
 	 * @return int|float
 	 */
 	public static function calculate_amount_owed_crypto( $total, $rate ) {
-		return ($rate * $total) / 100;
+		return sprintf('%f', ($rate * $total) / 100);
 	}
 
 	/**

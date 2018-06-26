@@ -30,7 +30,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 *
 	 * @var string
 	 */
-	public $btc_payment_address;
+	// public $btc_payment_address;
 
 	/**
 	 * accepted currencies
@@ -65,7 +65,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 		$this->title                   = $this->get_option( 'title' );
 		$this->description             = $this->get_option( 'description' );
 		$this->eth_payment_address     = $this->get_option( 'eth_payment_address' );
-		$this->btc_payment_address     = $this->get_option( 'btc_payment_address' );
+		// $this->btc_payment_address     = $this->get_option( 'btc_payment_address' );
 		$this->accepted_currencies     = $this->get_option( 'accepted_currencies' );
 		$this->enabled                 = $this->get_option( 'enabled' );
 		$this->testmode                = 'yes' === $this->get_option( 'testmode' );
@@ -223,7 +223,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			if ( $this->description ) {
 				if ( $this->testmode ) {
 					/* translators: link to WooReq testing page */
-					$this->description .= ' ' . sprintf( __( '<i>Please note, Request for WooCommerce is currently in testmode and all payments are through the Rinkeby test net. If you need some "test" ETH you can use the Rinkeby faucet <a href="%s" target="_blank">here</a></i>.</br></br>', 'woocommerce-gateway-wooreq' ), 'https://faucet.rinkeby.io/' );
+					$this->description .= ' ' . sprintf( __( '<i>Please note, Request for WooCommerce is currently in testmode and all payments are through the Rinkeby test net. If you need some "test" ETH you can use the Rinkeby faucet <a href="%s" target="_blank">here</a></i>.</br></br> ERC20 token payments are disabled in this mode.', 'woocommerce-gateway-wooreq' ), 'https://faucet.rinkeby.io/' );
 
 					$this->description  = trim( $this->description );
 				}
@@ -261,7 +261,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 
 				<?php
 
-					if ( $has_multiple_payment_options ) {
+					if ( $has_multiple_payment_options && !$this->testmode ) {
 						?>
 							<div class="payment-button-dropdown-icon-container">
 								<i class="payment-button-dropdown-icon"></i>
@@ -271,18 +271,27 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 
 				?>
 
-				<select name="payment_currency" id="payment_currency">
-					<?php
-						foreach ( $filtered_accepted_currencies as $key => $value ) {
+				<?php
 
-							if ( $key == $payment_currency ) {
-								echo "<option selected value={$key}>{$value}</option>";
-							} else {
-								echo "<option value={$key}>{$value}</option>";
-							}			
-						}
-					?>
-				</select>
+					if ( !$this->testmode ) {
+						?>
+							<select name="payment_currency" id="payment_currency">
+								<?php
+									foreach ( $filtered_accepted_currencies as $key => $value ) {
+
+										if ( $key == $payment_currency ) {
+											echo "<option selected value={$key}>{$value}</option>";
+										} else {
+											echo "<option value={$key}>{$value}</option>";
+										}			
+									}
+								?>
+							</select>
+						<?php
+					}
+				?>
+
+
 			</div>
 		</fieldset>
 
@@ -365,14 +374,15 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			update_post_meta( $order_id, 'total_owed', $total_owed . ' ' . $currency );
 			update_post_meta( $order_id, 'conversion_time', date( "d F Y H:i:s T", $conversion_time ) );
 			update_post_meta( $order_id, 'total_owed_raw', $total_owed );
-
+				
+			$to_address = $this->eth_payment_address;
 			// If the payment currency is BTC use the BTC payment address
-			$to_address = "";
-			if ( $currency == 'BTC' ) {
-				$to_address = $this->btc_payment_address;
-			} else {
-				$to_address = $this->eth_payment_address;
-			}
+			// $to_address = "";
+			// if ( $currency == 'BTC' ) {
+			// 	$to_address = $this->btc_payment_address;
+			// } else {
+			//	$to_address = $this->eth_payment_address;
+			// }
 
 			update_post_meta( $order_id, 'to_address', $to_address );
 
@@ -398,6 +408,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 				'order_id' 		=> $order_id,
 				'redirect_url' 	=> $full_callback,
 				'to_pay'		=> $total_owed,
+				'currency'		=> $currency,
 				'to_address'	=> $to_address,
 				'reason'		=> get_site_url() . " order for " . $total_owed . ' ' . $currency
 			);

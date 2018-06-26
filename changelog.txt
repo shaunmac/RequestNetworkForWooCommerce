@@ -2,12 +2,12 @@
 
 = 0.1.2 - 2018-05-15 =
 * Add - ERC20 payment options (REQ, DGX, DAI, OMG, KNC).
-* Add - Bitcoin payment option
+* Add - Bitcoin payment option (commented out)
 * Add - BCMath dependency warning
-* Add - Select2 for the currency multiselect
+* Add - Select dropdown for the currency multiselect
 * Add - Add order note when the TXID callback is triggered
 * Fix - Admin notices
-* Tweak - Change the default state of the test mode checkbox to unchecked
+* Tweak - Change the default state of the test mode checkbox to unchecked after installation
 
 = 0.1.1 - 2018-04-30 =
 * Add - WooCommerce automatic updater

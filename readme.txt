@@ -17,7 +17,7 @@ The Request Network for WooCommerce plugin extends WooCommerce allowing you to t
 = Features =
 
 * Allow customers to pay with Metamask or their Ledger Nano S hardware wallet.
-* Accept payments in ETH, Bitcoin and ERC20 tokens (REQ, DAI, KNC, OMG, DGX).
+* Accept payments in ETH and ERC20 tokens (REQ, DAI, KNC, OMG, DGX). Bitcoin support coming soon.
 * 100% free, no setup fees, no monthly fees and no hidden costs. 
 * Quick and easy installation. 
 * Real-time currency exchange rates with support for multiple currencies. 

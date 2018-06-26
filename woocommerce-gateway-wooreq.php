@@ -5,7 +5,7 @@
  * Description: Accept cryptocurrency payments on your store using the Request Network.
  * Author: Adam Dowson	
  * Author URI: https://wooreq.com/about/
- * Version: 0.1.1
+ * Version: 0.1.2
  * Requires at least: 4.4
  * Tested up to: 4.9.5
  * WC requires at least: 2.6
@@ -292,7 +292,7 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 			$options          = get_option( 'woocommerce_wooreq_settings' );
 			$testmode         = ( isset( $options['testmode'] ) && 'yes' === $options['testmode'] ) ? true : false;
 			$eth_payment_address  = isset( $options['eth_payment_address'] ) ? $options['eth_payment_address'] : '';
-			$btc_payment_address  = isset( $options['btc_payment_address'] ) ? $options['btc_payment_address'] : '';
+			// $btc_payment_address  = isset( $options['btc_payment_address'] ) ? $options['btc_payment_address'] : '';
 			$accepted_currencies = $options['accepted_currencies'];
 
 			if ( isset( $options['enabled'] ) && 'yes' === $options['enabled'] && empty( $show_keys_notice ) ) {
@@ -300,25 +300,25 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 				if ( empty( $show_eth_address_notice ) ) {
 					if ( !empty ( $accepted_currencies ) && in_array ( 'ETH', $accepted_currencies ) ) {
 						if ( empty( $eth_payment_address ) ) {
-							$this->add_admin_notice( 'eth_address', 'notice notice-error', 'You have selected ETH as a payment option but no ETH wallet address has been provided.', 'woocommerce-gateway-wooreq' );
+							$this->add_admin_notice( 'eth_address', 'notice notice-error', 'Pay with Request - You have selected ETH as a payment option but no ETH wallet address has been provided.', 'woocommerce-gateway-wooreq' );
 						}
 					}
 				}
 
 				if ( empty( $show_empty_currenciess_notice ) ) {
 					if ( empty ( $accepted_currencies ) ) {
-						$this->add_admin_notice( 'empty_currencies', 'notice notice-error', 'No accepted currencies have been selected.', 'woocommerce-gateway-wooreq' );
+						$this->add_admin_notice( 'empty_currencies', 'notice notice-error', 'Pay with Request - No accepted currencies have been selected.', 'woocommerce-gateway-wooreq' );
 					}		
 				}
 	
 				
-				if ( empty( $show_btc_address_notice ) ) {
-					if ( !empty ( $accepted_currencies ) && in_array ( 'BTC', $accepted_currencies ) ) {
-						if ( empty( $btc_payment_address ) ) {
-							$this->add_admin_notice( 'btc_address', 'notice notice-error', 'You have selected BTC as a payment option but no BTC wallet address has been provided.', 'woocommerce-gateway-wooreq' );
-						}
-					}
-				}
+				// if ( empty( $show_btc_address_notice ) ) {
+				// 	if ( !empty ( $accepted_currencies ) && in_array ( 'BTC', $accepted_currencies ) ) {
+				// 		if ( empty( $btc_payment_address ) ) {
+				// 			$this->add_admin_notice( 'btc_address', 'notice notice-error', 'You have selected BTC as a payment option but no BTC wallet address has been provided.', 'woocommerce-gateway-wooreq' );
+				// 		}
+				// 	}
+				// }
 			}
 
 			if ( empty( $show_ssl_notice ) && isset( $options['enabled'] ) && 'yes' === $options['enabled'] ) {

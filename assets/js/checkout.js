@@ -10,14 +10,18 @@ jQuery(document).ready(function() {
     		optionsItemBuilder: function(itemData, element, index) {
 			    return element.val().length ? '<i class="payment-icon payment-icon--' + itemData.value.toLowerCase() + '"></i><span>' + itemData.text : itemData.text + '</span>';
 			}
-    	});
+		});
+		
+		jQuery('.selectric-scroll ul li').click(function() {
+			jQuery('.selectric-items').removeClass('open');
+			jQuery('#request-payment-button').removeClass('active');
+		});
 
 		jQuery('.payment-button-dropdown-icon-container').click(function()
 		{
 			jQuery('.selectric-items').toggleClass('open');
 			jQuery('#request-payment-button').toggleClass('active');
 		});
-
 
 		$payment_dropdown.on("change", function() {
 		    jQuery('body').trigger('update_checkout');
