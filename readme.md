@@ -52,23 +52,6 @@ Request Network for WooCommerce currently supports:
 * IDR
 * [and more](https://www.cryptocompare.com/)
 
-## Dependencies
-
-[BCMath](http://php.net/manual/en/book.bc.php) is the only dependency for the plugin - almost every setup has BCMath installed as default. If it's not installed 
-
-Check if you already have BCMath installed
-```
-php -m
-```
-Install the BCMath extension.
-```
-sudo apt install php7.0-bcmath
-```
-Restart Apache / Nginx  
-```
-service apache2 restart or service nginx restart
-```
-
 ## Frequently Asked Questions ##
 
 ### Will you be taking any profit for the plugin? ###

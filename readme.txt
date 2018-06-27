@@ -2,9 +2,9 @@
 Contributors: adowson9
 Tags: cryptocurrency, ethereum, bitcoin, request network, woocommerce
 Requires at least: 4.4
-Tested up to: 4.9
+Tested up to: 4.9.6
 Requires PHP: 5.6
-Stable tag: 0.1.1
+Stable tag: 0.1.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -47,25 +47,6 @@ Request Network for WooCommerce currently supports:
 * BRL
 * IDR
 * [and many more](https://www.cryptocompare.com/)
-
-= Dependencies =
-
-[BCMath](http://php.net/manual/en/book.bc.php) is the only dependency for the plugin - almost every setup has BCMath installed as default. If it's not installed 
-
-Check if you already have BCMath installed
-`
-php -m
-`
-
-Install the BCMath extension.
-`
-sudo apt install php7.0-bcmath
-`
-
-Restart Apache / Nginx  
-`
-service apache2 restart or service nginx restart
-`
 
 == Installation ==
 

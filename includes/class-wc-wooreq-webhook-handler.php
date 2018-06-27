@@ -181,7 +181,7 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	 * Validates the incoming transaction ID, checks if it's mined, the receiving address and the amounts.
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.2
+	 * @version 0.1.3
 	 * @return bool
 	 */
 	private function check_txid( $order_id, $txid, $expected_amount, $network ) {
@@ -223,6 +223,7 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 
 			// Transaction hasn't been mined.
 			if ( empty ( $json_response->transaction ) ) {
+				WC_WooReq_Logger::log( sprintf( __( 'Error: check_txid check failed. Transaction has not been mined. %s', 'woocommerce-gateway-wooreq' ), $json_response ) );
 				return false;
 			}
 
@@ -260,14 +261,16 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 						return true;
 					}
 					else {
-						WC_WooReq_Logger::log( sprintf( __( 'Error: is_correct_amount( $order ) check failed. %s', 'woocommerce-gateway-wooreq' ), $dec_value ) );
 						return false;
 					}		
-				}
-				return false;
+				} else {
+					WC_WooReq_Logger::log( sprintf( __( 'Error: check_txid value check failed. %s', 'woocommerce-gateway-wooreq' ), $value ) );
+					return false;
+				}	
+				
 			}
 			else {
-				WC_WooReq_Logger::log( sprintf( __( 'Error: to_address( $order ) check failed. %s, address: %s', 'woocommerce-gateway-wooreq' ), $input_data_chain, $from_address ) );
+				WC_WooReq_Logger::log( sprintf( __( 'Error: to_address check failed. %s, address: %s', 'woocommerce-gateway-wooreq' ), $input_data_chain, $from_address ) );
 				return false;
 			}
 		
@@ -319,32 +322,25 @@ class WC_WooReq_Webhook_Handler extends WC_WooReq_Payment_Gateway {
 	}
 
 	/**
-	 * Checks the amount sent in the transaction - we have to consider the REQ fee too.
+	 * Checks the amount sent in the transaction.
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.2
+	 * @version 0.1.3
 	 * @return bool
 	 */
 	private function is_correct_amount( $value_sent, $expected_amount ) {
 
-		// We need to pad everything to a consistant format
-		$pad_amount = 22;
-		// Add some 
-		$dust_amount = 0.00000000000000001;
-		$normalised_sent = str_pad ( ceil ( bcdiv( $value_sent, '1000000000000000000', 18 ) ), $pad_amount, '0' );
+		$sent_to_wei = $value_sent / 1000000000000000000;
+		$sent_rounded = round ( $sent_to_wei, 18 );
+		$sent_normalised = str_pad ( $sent_rounded, $pad_amount, '0' );
+		
+		$expected_normalised = str_pad ( $expected_amount, $pad_amount, '0' );
 
-		$upper_bound_calc = ceil ( $expected_amount * 1.001 ) + $dust_amount;
-		//The TXID doesn't include the REQ fee so we must account for the bounds
-		$upper_bound = str_pad ( $upper_bound_calc, $pad_amount, '0' );
-		$lower_bound = str_pad ( $expected_amount, $pad_amount, '0' );
+		if ( $sent_normalised != $expected_normalised ) {
+			WC_WooReq_Logger::log( sprintf( __( 'Error: is_correct_amount check failed. value_sent: %s. expected_amount: %s.', 'woocommerce-gateway-wooreq' ),  $value_sent, $expected_amount ) );
+		}
 
-		if ( $normalised_sent >= $lower_bound && $normalised_sent <= $upper_bound ) {
-			return true;
-		}
-		else {
-			WC_WooReq_Logger::log( sprintf( __( 'Error: is_correct_amount( $order ) check failed. normalised_sent: %s. upper_bound: %s. lower_bound: %s.', 'woocommerce-gateway-wooreq' ), $normalised_sent, $upper_bound, $lower_bound ) );
-			return false;
-		}
+		return ( $sent_normalised == $expected_normalised );
 	}
 
 

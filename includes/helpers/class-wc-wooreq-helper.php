@@ -229,23 +229,6 @@ class WooReq_Helper {
 	}
 
 	/**
-	 * Converts Hex -> Decimals (WEI) correctly.
-	 *
-	 * @since 0.1.0
-	 * @version 0.1.0
-	 * @param string $hex
-	 */
-    public static function bchexdec( $hex ) {
-        if( strlen( $hex ) == 1 ) {
-            return hexdec( $hex );
-        } else {
-            $remain = substr( $hex, 0, -1 );
-            $last = substr( $hex, -1 );
-            return bcadd( bcmul( 16, self::bchexdec( $remain ) ), hexdec( $last ) );
-        }
-    }
-
-	/**
 	 * Check for a valid Ethereum address.
 	 *
      * Tests if the given string qualifies as a Ethereum address.

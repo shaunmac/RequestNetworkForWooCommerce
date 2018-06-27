@@ -5,11 +5,11 @@
  * Description: Accept cryptocurrency payments on your store using the Request Network.
  * Author: Adam Dowson	
  * Author URI: https://wooreq.com/about/
- * Version: 0.1.2
+ * Version: 0.1.3
  * Requires at least: 4.4
  * Tested up to: 4.9.5
  * WC requires at least: 2.6
- * WC tested up to: 3.3.5
+ * WC tested up to: 3.4.3
  * Text Domain: woocommerce-request-network
  *
  */
@@ -215,7 +215,7 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 		 * found or false if the environment has no problems.
 		 *
 		 * @since 0.1.0
-		 * @version 0.1.1
+		 * @version 0.1.3
 		 */
 		public function get_environment_warning() {
 			if ( version_compare( phpversion(), WC_WOOREQ_MIN_PHP_VER, '<' ) ) {
@@ -238,11 +238,6 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 
 			if ( ! function_exists( 'curl_init' ) ) {
 				return __( 'WooCommerce WooReq - cURL is not installed.', 'woocommerce-gateway-wooreq' );
-			}
-
-			if ( ! extension_loaded( 'bcmath' ) ) {
-				$message = __( 'WooCommerce WooReq - The BCMath module is not installed. Please view the dependencies <a href="%s">here.</a>', 'woocommerce-gateway-wooreq' );
-				return sprintf( $message, 'https://github.com/AdamDowson/RequestNetworkForWooCommerce#dependencies' );
 			}
 
 			return false;
