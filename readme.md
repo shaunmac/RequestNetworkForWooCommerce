@@ -8,11 +8,7 @@ The Request Network for WooCommerce plugin extends WooCommerce allowing you to t
 
 ## Installation
 
-### Automatic Installation
-
-Automatic installation coming soon. Pending approval from Wordpress.
-
-### Manual Installation
+### Automatic and Manual Installation
 
 For help setting up and configuring, please refer to our [installation guide](https://wooreq.com/getting-started/)
 
