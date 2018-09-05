@@ -5,11 +5,11 @@
  * Description: Accept cryptocurrency payments on your store using the Request Network.
  * Author: Adam Dowson	
  * Author URI: https://wooreq.com/about/
- * Version: 0.1.4
+ * Version: 0.1.5
  * Requires at least: 4.4
  * Tested up to: 4.9.5
  * WC requires at least: 2.6
- * WC tested up to: 3.4.3
+ * WC tested up to: 3.4.5
  * Text Domain: woocommerce-request-network
  *
  */

@@ -2,8 +2,6 @@
     font-family: Roboto;
     src:  url('../fonts/Roboto-Regular.ttf') format('truetype');
 }
-
-
 .payment-icon {
     background-image: url('../images/payment-icons.png');
     background-repeat: no-repeat;
@@ -51,6 +49,7 @@
 }
 .button-dropdown-container {
     position: relative;
+    max-width: 520px;
 }
 #request-payment-button {
     font-family: "Roboto", "Source Sans Pro", HelveticaNeue-Light, "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
@@ -61,10 +60,10 @@
     background-color: #103b56;
     color: #fff;
     width: 100%;
-    max-width: 520px;
     height: 72px;
     padding-left: 72px;
     padding-right: 42px;
+    border: 0;
 }
 #request-payment-button.active {
     -webkit-box-shadow: 0 0px 70px -20px rgba(0,0,0,.6);
