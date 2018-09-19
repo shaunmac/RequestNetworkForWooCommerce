@@ -74,53 +74,26 @@ class WooReq_Helper {
 			return (float) $rate;
 		}
 
-		if ( $crypto_currency == 'DGX' ) {
-
-			$response = wp_remote_get( 'https://api.coinmarketcap.com/v2/ticker/2739/?convert=' . $base_currency );			
-
-			if ( is_wp_error( $response ) ) {
-				WC_WooReq_Logger::log( sprintf( __( 'Error: could not get price from coinmarketcap. BaseCurrency: %s, CryptoCurrency %s.', 'woocommerce-gateway-wooreq' ), $base_currency, $crypto_currency ) );
-				throw new WC_WooReq_Exception( "Error: price check failed ( $response ) in get_crypto_rate" );		
-			}
-			$body = json_decode( $response['body'] );
-			if ( json_last_error() !== JSON_ERROR_NONE || $body->metadata->error != null ) {
-				WC_WooReq_Logger::log( sprintf( __( 'Error: Error returned from the Coinmarketcap API - %s. JSON error.', 'woocommerce-gateway-wooreq' ), $body ) );
-				throw new WC_WooReq_Exception( "Error: Error returned from the Coinmarketcap API ( $body ) in get_crypto_rate" );		
-			}
-
-			if ( !isset( $body->data->quotes->$base_currency ) ) {
-				WC_WooReq_Logger::log( sprintf( __( 'Error: Currency not supported by the Coinmarketcap API - %s.', 'woocommerce-gateway-wooreq' ), $body ) );
-				throw new WC_WooReq_Exception( "Error: Currency not supported by the Coinmarketcap API ( $body ) in get_crypto_rate" );		
-			}
-
-			$price_per_amount = (float) round( 1 / $body->data->quotes->$base_currency->price, 6 );
-
-			set_transient( $transient_key, $price_per_amount, 300 );
-
-			return (float) $price_per_amount;
-
-		} else {
-			$response = wp_remote_get( 'https://min-api.cryptocompare.com/data/price?fsym=' . $base_currency . '&tsyms=' . $crypto_currency );
-			if ( is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
-				WC_WooReq_Logger::log( sprintf( __( 'Error: could not get price from cryptocompare. BaseCurrency: %s, CryptoCurrency %s.', 'woocommerce-gateway-wooreq' ), $base_currency, $crypto_currency ) );
-				throw new WC_WooReq_Exception( "Error: price check failed ( $response ) in get_crypto_rate" );			
-			}
-			$body = json_decode( $response['body'] );
-			if ( json_last_error() !== JSON_ERROR_NONE ) {
-				WC_WooReq_Logger::log( sprintf( __( 'Error: Could not convert %s. JSON error.', 'woocommerce-gateway-wooreq' ), $crypto_currency ) );
-				throw new WC_WooReq_Exception( "Error: JSON Decode failed ( $body ) in get_crypto_rate" );		
-			}
-			if ( ! isset( $body->$crypto_currency ) ) {
-				WC_WooReq_Logger::log( sprintf( __( 'Error: Could not convert %s. missing value after decoding.', 'woocommerce-gateway-wooreq' ), $crypto_currency ) );
-				throw new WC_WooReq_Exception( "Error: Price conversion failed ( $body ) in get_crypto_rate" );		
-			}
-			
-			$rounded = round( $body->$crypto_currency, 6 );
-
-			set_transient( $transient_key, $body->$crypto_currency, 300 );
-			
-			return (float) $body->$crypto_currency;
+		$response = wp_remote_get( 'https://min-api.cryptocompare.com/data/price?fsym=' . $base_currency . '&tsyms=' . $crypto_currency );
+		if ( is_wp_error( $response ) || 200 !== $response['response']['code'] ) {
+			WC_WooReq_Logger::log( sprintf( __( 'Error: could not get price from cryptocompare. BaseCurrency: %s, CryptoCurrency %s.', 'woocommerce-gateway-wooreq' ), $base_currency, $crypto_currency ) );
+			throw new WC_WooReq_Exception( "Error: price check failed ( $response ) in get_crypto_rate" );			
 		}
+		$body = json_decode( $response['body'] );
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			WC_WooReq_Logger::log( sprintf( __( 'Error: Could not convert %s. JSON error.', 'woocommerce-gateway-wooreq' ), $crypto_currency ) );
+			throw new WC_WooReq_Exception( "Error: JSON Decode failed ( $body ) in get_crypto_rate" );		
+		}
+		if ( ! isset( $body->$crypto_currency ) ) {
+			WC_WooReq_Logger::log( sprintf( __( 'Error: Could not convert %s. missing value after decoding.', 'woocommerce-gateway-wooreq' ), $crypto_currency ) );
+			throw new WC_WooReq_Exception( "Error: Price conversion failed ( $body ) in get_crypto_rate" );		
+		}
+		
+		$rounded = round( $body->$crypto_currency, 6 );
+
+		set_transient( $transient_key, $body->$crypto_currency, 300 );
+		
+		return (float) $body->$crypto_currency;
 	}
 
 	/**
@@ -158,6 +131,70 @@ class WooReq_Helper {
 	 */
 	public static function calculate_amount_owed_crypto( $total, $rate ) {
 		return sprintf('%f', ($rate * $total) / 100);
+	}
+
+	/**
+	 * Generates the Request rnf_invoice invoice_items array
+	 *
+	 * @param array  $order_items list of items currently associated with the order
+	 * @since 0.1.0
+	 * @version 0.1.6
+	 * @return array
+	 */
+	public static function generate_rnf_invoice_items( $order_items ) {
+
+		if ( $order_items ) {
+			$formatted_order_items = array();
+
+			foreach ( $order_items as $item => $item_data ) {
+
+				$product = $item_data->get_product();
+
+				$tax_rate = self::get_product_tax_rate( $product );
+
+
+				$this_order_item = array();
+				$this_order_item['name'] = $product->get_title();
+				$this_order_item['reference'] = $product->get_id();			
+				$this_order_item['quantity'] = $item_data->get_quantity();
+				$this_order_item['unitPrice'] = $item_data->get_total();
+				$this_order_item['currency'] = get_woocommerce_currency();
+
+				$final_tax_rate = '0';
+
+				if ( $tax_rate ) {
+					$final_tax_rate = $tax_rate;
+				}
+
+				$this_order_item['taxPercent'] = $final_tax_rate;
+
+				array_push( $formatted_order_items, $this_order_item );
+			}
+			return json_encode( $formatted_order_items );
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Retrieves the product tax rate from an individual product
+	 *
+	 * @param array  $product product object to check
+	 *
+	 * @since 0.1.6
+	 * @version 0.1.6
+	 * 
+	 * @return string
+	 */
+	private static function get_product_tax_rate( $product ) {
+		$tax_rates = WC_Tax::get_rates( $product->get_tax_class() );
+
+		if ( wc_tax_enabled() && isset ( $tax_rates ) ) {
+			$tax_rate_item = reset( $tax_rates );
+			return $tax_rate_item['rate'];
+		} else {
+			return null;
+		}
 	}
 
 	/**

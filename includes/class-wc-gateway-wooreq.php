@@ -348,7 +348,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 * Process the payment
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.2
+	 * @version 0.1.6
 	 * @param int  $order_id Reference.
 	 * @param bool $retry Should we retry on fail.
 	 *
@@ -404,14 +404,22 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 
 			$full_callback = sprintf( __( 'https://sign.wooreq.com/validate?callbackurl=%s&txid=', 'woocommerce-gateway-wooreq' ), $woocommerce_callback );
 
+			$order_items = $order->get_items();
+			$generated_invoice_items = WooReq_Helper::generate_rnf_invoice_items( $order_items );
+
 			$data = array (
 				'order_id' 		=> $order_id,
 				'redirect_url' 	=> $full_callback,
 				'to_pay'		=> $total_owed,
 				'currency'		=> $currency,
 				'to_address'	=> $to_address,
+				'builder_id'	=> 'WooCommerce-WooReq',
 				'reason'		=> get_site_url() . " order for " . $total_owed . ' ' . $currency
 			);
+
+			if ( $generated_invoice_items ) {
+				$data['invoice_items'] = $generated_invoice_items;
+			}
 
 			if ( $this->testmode ) {
 				$data['network'] = 4;
@@ -422,7 +430,8 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			}
 
 			// Send a POST request to the signer API 
-			$url = "https://sign.wooreq.com/sign?";
+			// $url = "https://sign.wooreq.com/sign?";
+			$url = "http://localhost:8080/sign?";
 
 			$options = array(
 			    'http' => array(
