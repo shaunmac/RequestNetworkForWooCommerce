@@ -430,8 +430,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			}
 
 			// Send a POST request to the signer API 
-			// $url = "https://sign.wooreq.com/sign?";
-			$url = "http://localhost:8080/sign?";
+			$url = "https://sign.wooreq.com/sign?";
 
 			$options = array(
 			    'http' => array(
