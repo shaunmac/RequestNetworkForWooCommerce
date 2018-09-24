@@ -1,5 +1,8 @@
 *** Changelog ***
 
+= 0.1.7 - 2018-09-24 =
+* Fix - Compatability issue with CryptoWoo
+
 = 0.1.6 - 2018-09-19 =
 * Tweak - Changed the information which is used for the requestNetworkDataFormat invoice metadata
 * Tweak - Removed the seperate price lookup for DGX as DGX is now supported on CryptoCompare

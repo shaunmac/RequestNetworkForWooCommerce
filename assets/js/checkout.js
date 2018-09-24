@@ -4,7 +4,7 @@
 jQuery(document).ready(function() {
 	jQuery(document).on('updated_checkout', function() {
 
-    	var $payment_dropdown = jQuery('#payment_currency');
+    	var $payment_dropdown = jQuery('#req_payment_currency');
 
     	$payment_dropdown. selectric({
     		optionsItemBuilder: function(itemData, element, index) {

@@ -45,8 +45,8 @@ class WooReq_Helper {
 			$post_data = $checkout_vars['post_data'];
 			parse_str( $post_data, $parts );
 
-			if ( array_key_exists( 'payment_currency', $parts ) ) {
-				$payment_currency = $parts['payment_currency'];
+			if ( array_key_exists( 'req_payment_currency', $parts ) ) {
+				$payment_currency = $parts['req_payment_currency'];
 				return $payment_currency;
 			}
 		}

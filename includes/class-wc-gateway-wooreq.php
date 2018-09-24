@@ -243,7 +243,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 * Renders the WooReq button.
 	 *
 	 * @since 0.1.0
-	 * @version 0.1.2
+	 * @version 0.1.7
 	 */
 	public function pay_with_request( $payment_currency ) {
 
@@ -275,7 +275,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 
 					if ( !$this->testmode ) {
 						?>
-							<select name="payment_currency" id="payment_currency">
+							<select name="req_payment_currency" id="req_payment_currency">
 								<?php
 									foreach ( $filtered_accepted_currencies as $key => $value ) {
 
