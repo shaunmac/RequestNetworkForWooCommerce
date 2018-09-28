@@ -17,7 +17,7 @@ The manual installation method involves downloading the plugin and uploading it 
 ## Features
 
 * Allow customers to pay with Metamask or their Ledger Nano S hardware wallet.
-* Accept payments in ETH and ERC20 tokens (REQ, DAI, KNC, OMG, DGX). Bitcoin support coming soon.
+* Accept payments in ETH and ERC20 tokens (REQ, DAI, KNC, OMG, DGX, KIN, BNB, BAT, ZRX and LINK). Bitcoin support coming soon.
 * 100% free, no setup fees, no monthly fees and no hidden costs. 
 * Quick and easy installation. 
 * Real-time currency exchange rates with support for multiple currencies. 

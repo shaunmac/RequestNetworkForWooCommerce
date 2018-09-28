@@ -4,7 +4,7 @@ Tags: cryptocurrency, ethereum, bitcoin, request network, woocommerce
 Requires at least: 4.4
 Tested up to: 4.9.6
 Requires PHP: 5.6
-Stable tag: 0.1.7
+Stable tag: 0.1.8
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -17,7 +17,7 @@ The Request Network for WooCommerce plugin extends WooCommerce allowing you to t
 = Features =
 
 * Allow customers to pay with Metamask or their Ledger Nano S hardware wallet.
-* Accept payments in ETH and ERC20 tokens (REQ, DAI, KNC, OMG, DGX). Bitcoin support coming soon.
+* Accept payments in ETH and ERC20 tokens (REQ, DAI, KNC, OMG, DGX, KIN, BNB, BAT, ZRX and LINK). Bitcoin support coming soon.
 * 100% free, no setup fees, no monthly fees and no hidden costs. 
 * Quick and easy installation. 
 * Real-time currency exchange rates with support for multiple currencies. 

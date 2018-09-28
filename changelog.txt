@@ -1,5 +1,9 @@
 *** Changelog ***
 
+= 0.1.8 - 2018-09-24 =
+* Add - Support for KIN, BNB, BAT, ZRX and LINK
+* Fix - Link to installation guide in plugin action links
+
 = 0.1.7 - 2018-09-24 =
 * Fix - Compatability issue with CryptoWoo
 

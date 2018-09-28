@@ -100,7 +100,7 @@ class WooReq_Helper {
 	 * Returns a list of accepted currencies on the site.
 	 *
 	 * @since 0.1.2
-	 * @version 0.1.2
+	 * @version 0.1.8
 	 * @return array
 	 */
 	public static function get_accepted_currencies( $filter = null ) {
@@ -112,7 +112,12 @@ class WooReq_Helper {
 	        'REQ' => __( 'Request Network (REQ)', 'woocommerce-gateway-wooreq' ),
 	        'KNC' => __( 'Kyber Network (KNC)', 'woocommerce-gateway-wooreq' ),
 	        'DAI' => __( 'Dai (DAI)', 'woocommerce-gateway-wooreq' ),
-	        'DGX' => __( 'Digix Gold (DGX)', 'woocommerce-gateway-wooreq' )
+			'DGX' => __( 'Digix Gold (DGX)', 'woocommerce-gateway-wooreq' ),
+			'KIN' => __( 'Kin (KIN)', 'woocommerce-gateway-wooreq' ),
+			'BNB' => __( 'Binance Coin (BNB)', 'woocommerce-gateway-wooreq' ),
+			'BAT' => __( 'Basic Attention Token (BAT)', 'woocommerce-gateway-wooreq' ),
+			'ZRX' => __( '0x (ZRX)', 'woocommerce-gateway-wooreq' ),
+			'LINK' => __( 'Chainlink (LINK)', 'woocommerce-gateway-wooreq' )
 		);
 
 		if ( $filter ) {
@@ -149,9 +154,7 @@ class WooReq_Helper {
 			foreach ( $order_items as $item => $item_data ) {
 
 				$product = $item_data->get_product();
-
 				$tax_rate = self::get_product_tax_rate( $product );
-
 
 				$this_order_item = array();
 				$this_order_item['name'] = $product->get_title();
@@ -161,7 +164,6 @@ class WooReq_Helper {
 				$this_order_item['currency'] = get_woocommerce_currency();
 
 				$final_tax_rate = '0';
-
 				if ( $tax_rate ) {
 					$final_tax_rate = $tax_rate;
 				}
