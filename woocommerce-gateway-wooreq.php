@@ -3,9 +3,9 @@
  * Plugin Name: WooCommerce Request Network
  * Plugin URI: https://wooreq.com
  * Description: Accept cryptocurrency payments on your store using the Request Network.
- * Author: Adam Dowson	
+ * Author: Adam Dowson
  * Author URI: https://wooreq.com/about/
- * Version: 0.1.8
+ * Version: 0.1.9
  * Requires at least: 4.4
  * Tested up to: 4.9.5
  * WC requires at least: 2.6
@@ -303,10 +303,10 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 				if ( empty( $show_empty_currenciess_notice ) ) {
 					if ( empty ( $accepted_currencies ) ) {
 						$this->add_admin_notice( 'empty_currencies', 'notice notice-error', 'Pay with Request - No accepted currencies have been selected.', 'woocommerce-gateway-wooreq' );
-					}		
+					}
 				}
-	
-				
+
+
 				// if ( empty( $show_btc_address_notice ) ) {
 				// 	if ( !empty ( $accepted_currencies ) && in_array ( 'BTC', $accepted_currencies ) ) {
 				// 		if ( empty( $btc_payment_address ) ) {
@@ -419,7 +419,7 @@ if ( ! class_exists( 'WC_WooReq' ) ) :
 
 			wp_enqueue_script( 'woocommerce_wooreq_admin_select', plugins_url( 'assets/js/select2.min.js', WC_WOOREQ_MAIN_FILE ), array(), WC_WOOREQ_VERSION, true );
 			wp_enqueue_script( 'woocommerce_wooreq_admin', plugins_url( 'assets/js/admin.js', WC_WOOREQ_MAIN_FILE ), array(), WC_WOOREQ_VERSION, true );
-			
+
 		}
 	}
 

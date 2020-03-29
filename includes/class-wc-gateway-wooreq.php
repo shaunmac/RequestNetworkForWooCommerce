@@ -88,7 +88,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	 * @version 0.1.2
 	 */
 	public function wooreq_email_order_meta_fields( $fields, $sent_to_admin, $order ) {
-		
+
 		// Only show the extra fields if the payment method is 'Pay with Request'
 		if ( $order->get_payment_method() != "wooreq" ) {
 			return $fields;
@@ -112,11 +112,11 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 	        'value' => get_post_meta( $order->get_id(), 'value', true ),
 	    );
 
-	    // Display the transaction 
+	    // Display the transaction
 		$network = get_post_meta( $order->get_id(), 'network', true );
 
 		// Construct the etherscan TXID URL
-		if ( $network == "rinkeby") {	
+		if ( $network == "rinkeby") {
 			$network .= '.';
 		} else {
 			$network = '';
@@ -133,7 +133,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 
 	    return $fields;
 	}
-		
+
 
 	/**
 	 * Checks if gateway should be available to use.
@@ -157,7 +157,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 		$icons_str = '';
 
 		$icons_str .= $icons['eth'];
-		$icons_str .= $icons['btc'];
+		// $icons_str .= $icons['btc'];
 
 		return apply_filters( 'woocommerce_gateway_icon', $icons_str, $this->id );
 	}
@@ -183,7 +183,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 		$user                 = wp_get_current_user();
 		$total                = WC()->cart->total;
 		$user_email           = '';
-		
+
 		// If paying from order, we need to get total from order not cart.
 		if ( isset( $_GET['pay_for_order'] ) && ! empty( $_GET['key'] ) ) {
 			$order      = wc_get_order( wc_get_order_id_by_order_key( wc_clean( stripslashes ( $_GET['key'] ) ) ) );
@@ -207,7 +207,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 		<div id="wooreq-payment">
 			<p>Total to pay in <?= $payment_currency ?>: <b> <?= $total_owed_crypto ?></b></p>
 			<p>Current rate: <b> <?= $current_exchange_rate ?> <?= $payment_currency ?> / <?= get_woocommerce_currency() ?></b></p>
-			
+
 			<?php
 
 			WC()->session->set(
@@ -236,7 +236,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			<div class="wooreq-errors" role="alert"></div>
 		</div>
 
-		<?php 
+		<?php
 	}
 
 	/**
@@ -256,7 +256,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			<div class="button-dropdown-container">
 				<button id="request-payment-button">
 					<i class="payment-icon payment-icon--req-large"></i>
-					<span>Pay with Request</span> 
+					<span>Pay with Request</span>
 				</button>
 
 				<?php
@@ -283,7 +283,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 											echo "<option selected value={$key}>{$value}</option>";
 										} else {
 											echo "<option value={$key}>{$value}</option>";
-										}			
+										}
 									}
 								?>
 							</select>
@@ -374,7 +374,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 			update_post_meta( $order_id, 'total_owed', $total_owed . ' ' . $currency );
 			update_post_meta( $order_id, 'conversion_time', date( "d F Y H:i:s T", $conversion_time ) );
 			update_post_meta( $order_id, 'total_owed_raw', $total_owed );
-				
+
 			$to_address = $this->eth_payment_address;
 			// If the payment currency is BTC use the BTC payment address
 			// $to_address = "";
@@ -429,7 +429,7 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 				update_post_meta( $order_id, 'network', 'mainnet' );
 			}
 
-			// Send a POST request to the signer API 
+			// Send a POST request to the signer API
 			$url = "https://sign.wooreq.com/sign?";
 
 			$options = array(
@@ -507,13 +507,13 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 				<?= $currency ?> Conversion Rate:				<strong><?= $value ?></strong>
 				</li>
 
-				<?php 
+				<?php
 
 				    $network = "";
 
 					if ( $this->testmode ) {
 						$network = "rinkeby.";
-					} 
+					}
 
 					$txid_url = sprintf( __( '<a href="https://%setherscan.io/tx/%s">%s</a>. ', 'woocommerce-gateway-wooreq' ), $network, $txid, $txid );
 
@@ -522,13 +522,13 @@ class WC_Gateway_WooReq extends WC_WooReq_Payment_Gateway {
 				<li class="woocommerce-order-overview__order order">
 					Transaction ID:						<strong><?= $txid_url ?></strong>
 				</li>
-				
+
 				<li class="woocommerce-order-overview__total total">
 					<?= $currency ?> Conversion Time:				<strong><?= $conversion_time ?></strong>
 				</li>
-				
+
 			</ul>
 
-		<?php		
+		<?php
 	}
 }
