@@ -1,0 +1,12 @@
+{
+    "name": "shaunmac/RequestNetworkForWooCommerce",
+    "description": "Crypto payment gateway",
+    "type": "wordpress-plugin",
+    "authors": [
+        {
+            "name": "Shaun Mac",
+            "email": "me@shaunmacdougall.com"
+        }
+    ],
+    "require": {}
+}
